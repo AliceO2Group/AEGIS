@@ -1,0 +1,26 @@
+#ifndef GENERATORPARAMLIBBASE_H
+#define GENERATORPARAMLIBBASE_H
+/* Copyright(c) 1998-1999, ALICE Experiment at CERN, All rights reserved. *
+ * See cxx source for full Copyright notice                               */
+
+/* $Id$ */
+
+#include <TObject.h>
+
+class TRandom;
+
+class GeneratorParamLibBase : public TObject {
+public:
+  //
+  virtual ~GeneratorParamLibBase() {}
+  typedef Double_t (*GenFunc)(const Double_t *, const Double_t *);
+  typedef Int_t (*GenFuncIp)(TRandom *);
+  virtual GenFunc GetPt(Int_t param, const char *tname) const = 0;
+  virtual GenFunc GetY(Int_t param, const char *tname) const = 0;
+  virtual GenFuncIp GetIp(Int_t param, const char *tname) const = 0;
+  virtual GenFunc GetV2(Int_t, const char *) const { return NoV2; }
+  static Double_t NoV2(const Double_t *, const Double_t *) { return 0; }
+  ClassDef(GeneratorParamLibBase,
+           0) // Library providing y and pT parameterisations
+};
+#endif
