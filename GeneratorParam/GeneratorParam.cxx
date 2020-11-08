@@ -8,7 +8,7 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-// Class to generate particles from using paramtrized pT and y distributions.
+// Class to generate particles using paramtrized pT and y distributions.
 // Distributions are obtained from pointer to object of type
 // GeneratorParamLibBase. Decays are performed using Pythia.
 // andreas.morsch@cern.ch

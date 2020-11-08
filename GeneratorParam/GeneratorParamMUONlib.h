@@ -1,13 +1,6 @@
 #ifndef GENERATORPARAMMUONLIB_H
 #define GENERATORPARAMMUONLIB_H
-/* Copyright(c) 1998-1999, ALICE Experiment at CERN, All rights reserved. *
- * See cxx source for full Copyright notice                               */
 
-// Library class for particle pt and y distributions used for
-// muon spectrometer simulations.
-// To be used with AliGenParam.
-//
-// andreas.morsch@cern.ch
 
 #include "GeneratorParamLibBase.h"
 

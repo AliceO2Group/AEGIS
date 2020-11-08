@@ -1,10 +1,25 @@
-#ifndef ALIDECAYERPYTHIA_H
-#define ALIDECAYERPYTHIA_H
-/* Copyright(c) 1998-1999, ALICE Experiment at CERN, All rights reserved. *
- * See cxx source for full Copyright notice                               */
-// Implementation of AliDecayer using Pythia
-// Method forwarding to the AliPythia instance.
+#ifndef PYTHIADECAYERCONFIG_H
+#define PYTHIADECAYERCONFIG_H
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
+// Class to generate particles from using paramtrized pT and y distributions.
+// Distributions are obtained from pointer to object of type
+// GeneratorParamLibBase. Decays are performed using Pythia.
+// andreas.morsch@cern.ch
+
+
+// Helper class for the configuration of the Pythia6 decayer
+// Allows to force decay channels.
 // Author: andreas.morsch@cern.ch
+
 #include <TPythia6.h>
 
 typedef enum {

@@ -1,12 +1,16 @@
 #ifndef GENERATORPARAM_H
 #define GENERATORPARAM_H
-/* Copyright(c) 1998-1999, ALICE Experiment at CERN, All rights reserved. *
- * See cxx source for full Copyright notice                               */
-
-/* $Id$ */
-
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
 //
-// Class to generate particles from using parametrized pT and y distributions.
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+//
+// Class to generate particles using parametrized pT and y distributions.
 // Distributions are obtained from pointer to object of type AliGenLib.
 //
 // andreas.morsch@cern.ch
