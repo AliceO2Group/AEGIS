@@ -202,12 +202,10 @@ void GeneratorParam::GenerateEvent() {
   Int_t ipa = 0;
 
   // Generating fNpart particles
-  printf("Generate %5d particles\n", fNpart);
   fNprimaries = 0;
   auto nt = 0;
   while (ipa < fNpart) {
     while (1) {
-      printf("ipa %5d %5d \n", ipa, fForceDecay);
       //
       // particle type
       Int_t pdg = fIpParaFunc ? fIpParaFunc(gRandom) : fPDGcode;
@@ -247,10 +245,10 @@ void GeneratorParam::GenerateEvent() {
       //
       // phi
       double v2 = fV2Para->Eval(pt);
+        
       fdNdPhi->SetParameter(0, v2);
       fdNdPhi->SetParameter(1, fEvPlane);
-      // phi = fdNdPhi->GetRandom();
-      phi = 0.;
+      phi = fdNdPhi->GetRandom();
       pl = xmt * ty / sqrt((1. - ty) * (1. + ty));
       theta = TMath::ATan2(pt, pl);
       // Cut on theta
@@ -282,7 +280,6 @@ void GeneratorParam::GenerateEvent() {
         //
         // select decay particles
         Int_t np = fDecayer->ImportParticles(particles);
-        printf("decay %5d \n", np);
         pdg = iTemp;
         if (pdg >= 220000 & pdg <= 220001) {
           TParticle *gamma = (TParticle *)particles->At(0);
@@ -405,7 +402,6 @@ void GeneratorParam::GenerateEvent() {
               } else {
                 iparent = -1;
               }
-              printf("child %5d %5d %5d %5d %5d \n", i, kf, ksc, jpa, iparent);
               auto parentP = (TParticle *)fParticles->At(iparent);
               if (parentP->GetFirstDaughter() == -1)
                 parentP->SetFirstDaughter(nt);
