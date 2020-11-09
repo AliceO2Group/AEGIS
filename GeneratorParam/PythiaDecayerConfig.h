@@ -15,7 +15,6 @@
 // GeneratorParamLibBase. Decays are performed using Pythia.
 // andreas.morsch@cern.ch
 
-
 // Helper class for the configuration of the Pythia6 decayer
 // Allows to force decay channels.
 // Author: andreas.morsch@cern.ch

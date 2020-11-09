@@ -245,7 +245,6 @@ void GeneratorParam::GenerateEvent() {
       //
       // phi
       double v2 = fV2Para->Eval(pt);
-        
       fdNdPhi->SetParameter(0, v2);
       fdNdPhi->SetParameter(1, fEvPlane);
       phi = fdNdPhi->GetRandom();

@@ -1,7 +1,5 @@
 #ifndef GENERATORPARAMMUONLIB_H
 #define GENERATORPARAMMUONLIB_H
-
-
 #include "GeneratorParamLibBase.h"
 
 class GeneratorParamMUONlib : public GeneratorParamLibBase {
