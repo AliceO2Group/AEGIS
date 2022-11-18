@@ -196,6 +196,12 @@ protected:
   Float_t fChildThetaMax = 0.;
   Float_t fChildPhiMin = 0.;
   Float_t fChildPhiMax = 0.;
+  Float_t fParentWeight = 1.;
+  Float_t fChildWeight = 1.;
+  Float_t fYWgt = 1.;
+  Float_t fPtWgt = 1.;
+  Float_t fdNdy0 = 1.;
+  
   TArrayI fChildSelect; //! Decay products to be selected
   enum {
     kThetaRange = BIT(14),
@@ -211,7 +217,6 @@ private:
   GeneratorParam(const GeneratorParam &Param);
   GeneratorParam &operator=(const GeneratorParam &rhs);
 
-  ClassDef(GeneratorParam,
-           1) // Generator using parameterised pt- and y-distribution
+  ClassDef(GeneratorParam, 2) // Generator using parameterised pt- and y-distribution
 };
 #endif
