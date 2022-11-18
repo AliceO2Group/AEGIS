@@ -106,6 +106,8 @@ public:
   } // Prevent flagging(/skipping) of decay daughter particles; preserves
     // complete forced decay chain
 
+  virtual void SetWeighting(Weighting_t flag = kAnalog) {fAnalog = flag;}
+
   virtual void Draw(const char *opt);
   TF1 *GetPt() { return fPtPara; }
   TF1 *GetY() { return fYPara; }
@@ -201,6 +203,7 @@ protected:
   Float_t fYWgt = 1.;
   Float_t fPtWgt = 1.;
   Float_t fdNdy0 = 1.;
+  Weighting_t fAnalog = kAnalog;
   
   TArrayI fChildSelect; //! Decay products to be selected
   enum {

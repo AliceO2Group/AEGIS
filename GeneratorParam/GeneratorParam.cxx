@@ -173,7 +173,11 @@ void GeneratorParam::Init() {
   fdNdy0=fYParaFunc(&y1,&y2);
 
   fYWgt  = intYS/fdNdy0;
-  fPtWgt = intPtS/intPt0;
+  if (fAnalog == kAnalog) {
+    fPtWgt = intPtS/intPt0;
+  } else {
+    fPtWgt = (fPtMax-fPtMin)/intPt0;
+  }
   fParentWeight = fYWgt*fPtWgt*phiWgt/fNpart;
   //
   //
@@ -213,6 +217,7 @@ void GeneratorParam::GenerateEvent() {
   std::vector<bool> vFlags;
   std::vector<bool> vSelected;
   std::vector<int> vParent;
+  Double_t dummy;
 
   // array to store decay products
   static TClonesArray *particles;
@@ -261,9 +266,16 @@ void GeneratorParam::GenerateEvent() {
       ty = TMath::TanH(fYPara->GetRandom());
       //
       // pT
-      pt = fPtPara->GetRandom();
-      wgtp = fParentWeight;
-      wgtch = fChildWeight;
+      if (fAnalog == kAnalog) {
+        pt = fPtPara->GetRandom();
+        wgtp = fParentWeight;
+        wgtch = fChildWeight;
+      } else {
+        pt=fPtMin+random[1]*(fPtMax-fPtMin);
+        Double_t ptd=pt;
+        wgtp=fParentWeight*fPtParaFunc(& ptd, &dummy);
+        wgtch=fChildWeight*fPtParaFunc(& ptd, &dummy);
+      }
       xmt = sqrt(pt * pt + am * am);
       if (TMath::Abs(ty) == 1.) {
         ty = 0.;
