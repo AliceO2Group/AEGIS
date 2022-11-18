@@ -41,7 +41,7 @@ ClassImp(GeneratorParam)
 GeneratorParam::GeneratorParam(Int_t npart,
                                const GeneratorParamLibBase *Library,
                                Int_t param, const char *tname)
-    : TGenerator("GeneratorParam", "GeneratorParam"), fNpart(npart) {
+    : TGenerator("GeneratorParam", "GeneratorParam"), fNpart(npart), fParam(param) {
   // Constructor using number of particles parameterisation id and library
   fName = "Param";
   fTitle = "Particle Generator using pT and y parameterisation";
@@ -185,8 +185,7 @@ void GeneratorParam::Init() {
   fDecayer->Init();
   // initialise selection of decay products
   InitChildSelect();
-  PythiaDecayerConfig decayerconfig;
-  decayerconfig.Init(fForceDecay);
+  fDecayerConfig->Init(fForceDecay);
 }
 
 void GeneratorParam::GenerateEvent() {
@@ -244,7 +243,7 @@ void GeneratorParam::GenerateEvent() {
       // custom pdg codes to destinguish direct photons
       if ((pdg >= 220000) && (pdg <= 220001))
         pdg = 22;
-      fChildWeight=(fDecayer->GetPartialBranchingRatio(pdg))*fParentWeight;
+      fChildWeight=(fDecayerConfig->GetPartialBranchingRatio(pdg))*fParentWeight;
       TParticlePDG *particle = pDataBase->GetParticle(pdg);
       Float_t am = particle->Mass();
       gRandom->RndmArray(2, random);
