@@ -314,7 +314,7 @@ void GeneratorParam::GenerateEvent() {
       if (fForceDecay != kNoDecay) {
         // Using lujet to decay particle
         TLorentzVector pmom(p[0], p[1], p[2], energy);
-        fDecayer->Decay(pdg, &pmom);
+        fDecayerConfig->Decay(pdg, &pmom);
         //
         // select decay particles
         Int_t np = fDecayer->ImportParticles(particles);

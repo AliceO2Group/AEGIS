@@ -20,6 +20,8 @@
 // Author: andreas.morsch@cern.ch
 
 #include <TPythia6.h>
+#include <TLorentzVector.h>
+#include "ExodusDecayer.h"
 
 typedef enum {
   kBSemiElectronic,
@@ -90,14 +92,25 @@ public:
   virtual void Init(Decay_t decay);
   virtual void ForceDecay();
   virtual void SetPatchOmegaDalitz() { fPatchOmegaDalitz = 1; }
-  virtual void SetDecayerExodus() { fDecayerExodus = 1; }
+  virtual void SetDecayerExodus() { fDecayerExodus = new ExodusDecayer();}
   virtual void HeavyFlavourOff() { fHeavyFlavour = kFALSE; }
   virtual void DecayLongLivedParticles() { fLongLived = kTRUE; }
   virtual Float_t GetPartialBranchingRatio(Int_t ipart);
   virtual Float_t GetLifetime(Int_t kf);
+  virtual void Decay(Int_t idpart, TLorentzVector* p);
   virtual void SwitchOffBDecay();
   virtual void SwitchOffPi0() { fPi0 = 0; }
   virtual void SwitchOffParticle(Int_t kf);
+
+  void PizeroDalitz();
+  void EtaDalitz();
+  void RhoDirect();
+  void OmegaDalitz();
+  void OmegaDirect();
+  void EtaprimeDalitz();
+  void PhiDalitz();
+  void PhiDirect();
+  void JPsiDirect();
 
 private:
   Int_t CountProducts(Int_t channel, Int_t particle);
@@ -126,7 +139,7 @@ private:
   Bool_t fHeavyFlavour;     //! Flag for heavy flavors
   Bool_t fLongLived;        //! Flag for long lived particle decay
   Bool_t fPatchOmegaDalitz; //! Flag to patch the omega Dalitz decays
-  Bool_t fDecayerExodus;    //! Flag for EXODUS decayer
+  ExodusDecayer *fDecayerExodus;    //! Pointer to EXODUS decayer
   Bool_t fPi0;              //! Flag for pi0 decay
   static Bool_t fgInit;     //! initialization flag
 
