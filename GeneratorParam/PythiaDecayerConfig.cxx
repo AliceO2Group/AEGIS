@@ -27,7 +27,7 @@
 ClassImp(PythiaDecayerConfig)
 
     PythiaDecayerConfig::PythiaDecayerConfig()
-    : TObject(), fDecay(kAll), fHeavyFlavour(kTRUE), fLongLived(kFALSE),
+    : TVirtualMCDecayer(), fDecay(kAll), fHeavyFlavour(kTRUE), fLongLived(kFALSE),
       fPatchOmegaDalitz(0), fDecayerExodus(nullptr), fPi0(1) {
   // Default Constructor
   for (Int_t i = 0; i < 501; i++)
@@ -43,7 +43,7 @@ PythiaDecayerConfig::PythiaDecayerConfig(const PythiaDecayerConfig &decayer)
     fBraPart[i] = 0.;
 }
 
-void PythiaDecayerConfig::Init(Decay_t decay) {
+void PythiaDecayerConfig::Init() {
 
   if (fDecayerExodus){
     fDecayerExodus->Init();
@@ -51,7 +51,6 @@ void PythiaDecayerConfig::Init(Decay_t decay) {
 
   // Switch on heavy flavor decays
   fPythia = TPythia6::Instance();
-  fDecay = decay;
   Int_t kc, i, j;
   Int_t heavy[14] = {411, 421, 431, 4122, 4132, 4232, 4332,
                      511, 521, 531, 5122, 5132, 5232, 5332};
@@ -902,6 +901,23 @@ Float_t PythiaDecayerConfig::GetLifetime(Int_t kf) {
   return fPythia->GetPMAS(kc, 4) * 3.3333e-12;
 }
 
+Int_t PythiaDecayerConfig::ImportParticles(TClonesArray *particles)
+{
+   return fPythia->ImportParticles(particles,"All");
+}
+
+void PythiaDecayerConfig::ReadDecayTable()
+{
+   if (fDecayTableFile.IsNull()) {
+      printf("PythiaDeceayerConfig: Warning: ReadDecayTable: No file set\n");
+      return;
+   }
+   Int_t lun = 15;
+   fPythia->OpenFortranFile(lun,const_cast<char*>(fDecayTableFile.Data()));
+   fPythia->Pyupda(3,lun);
+   fPythia->CloseFortranFile(lun);
+}
+
 void PythiaDecayerConfig::Decay(Int_t idpart, TLorentzVector* p) {
   if (!p) return;
 
@@ -988,8 +1004,8 @@ void PythiaDecayerConfig::PizeroDalitz(){
 
 void PythiaDecayerConfig::EtaDalitz(){
   Int_t nt = fPythia->GetN();
-    for (Int_t i = 0; i < nt; i++) {
-    if (fPythia->GetK(i+1,2) != 111) continue;
+  for (Int_t i = 0; i < nt; i++) {
+    if (fPythia->GetK(i+1,2) != 221) continue;
     Int_t fd = fPythia->GetK(i+1,4) - 1;
     Int_t ld = fPythia->GetK(i+1,5) - 1;
     if (fd < 0) continue;
@@ -997,7 +1013,7 @@ void PythiaDecayerConfig::EtaDalitz(){
     if ((fPythia->GetK(fd+1,2) != 22) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 11) ) continue;
     TLorentzVector eta(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
     Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
-    fDecayerExodus->Decay(pdg+1000*fPythia->GetK(i+1,2), &eta);
+    fDecayerExodus->Decay(pdg+1000*fPythia->GetK(fd+1,2), &eta);
     for (Int_t j = 0; j < 3; j++) {
       for (Int_t k = 0; k < 4; k++) {
         TLorentzVector vec = (fDecayerExodus->Products_eta())[2-j];

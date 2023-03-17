@@ -83,13 +83,15 @@ typedef enum {
   kHadronicDWithout4BodiesDsPhiPi
 } Decay_t;
 
-class PythiaDecayerConfig : public TObject {
+class PythiaDecayerConfig : public TVirtualMCDecayer {
 public:
   PythiaDecayerConfig();
   PythiaDecayerConfig(const PythiaDecayerConfig &decayerconfig);
   //
   virtual ~PythiaDecayerConfig() { ; }
-  virtual void Init(Decay_t decay);
+  virtual void Init();
+  virtual void SetForceDecay(Int_t decay) {fDecay = Decay_t(decay);}
+  virtual void SetForceDecay(Decay_t decay) {fDecay = decay;}
   virtual void ForceDecay();
   virtual void SetPatchOmegaDalitz() { fPatchOmegaDalitz = 1; }
   virtual void SetDecayerExodus() { fDecayerExodus = new ExodusDecayer();}
@@ -97,6 +99,9 @@ public:
   virtual void DecayLongLivedParticles() { fLongLived = kTRUE; }
   virtual Float_t GetPartialBranchingRatio(Int_t ipart);
   virtual Float_t GetLifetime(Int_t kf);
+  virtual Int_t ImportParticles(TClonesArray *particles);
+  virtual void ReadDecayTable();
+  virtual void SetDecayTableFile(const char* name) {fDecayTableFile = name;}
   virtual void Decay(Int_t idpart, TLorentzVector* p);
   virtual void SwitchOffBDecay();
   virtual void SwitchOffPi0() { fPi0 = 0; }
@@ -142,6 +147,7 @@ private:
   ExodusDecayer *fDecayerExodus;    //! Pointer to EXODUS decayer
   Bool_t fPi0;              //! Flag for pi0 decay
   static Bool_t fgInit;     //! initialization flag
+  TString fDecayTableFile;   // Decay table to be read
 
   ClassDef(PythiaDecayerConfig, 1) // AliDecayer implementation using Pythia
 };

@@ -301,6 +301,11 @@ void ExodusDecayer::Init()
    vwidth_phi   = (TDatabasePDG::Instance()->GetParticle(333))->Width();  
    vwidth_jpsi  = (TDatabasePDG::Instance()->GetParticle(443))->Width();
 
+   if( vwidth_jpsi < 1e-6 ){
+    printf(Form("ExodusDecayer: Warning: Width JPsi = %f (Mass = %f) < 1e-6, set to 1e-6\n",vwidth_jpsi,vmass_jpsi));
+    vwidth_jpsi = 1e-6;
+  }
+
 
        if ( mass_min == 0. && mass_max == 0. )
           {
@@ -337,7 +342,7 @@ void ExodusDecayer::Init()
      fEPMassPhi  ->AddBinContent(ibin,weight_phi);
      fEPMassJPsi ->AddBinContent(ibin,weight_jpsi);
     }  
-
+    fInit=1;
 }
 
 
@@ -427,11 +432,6 @@ Double_t ExodusDecayer::Lorentz(Float_t mass, Double_t vmass, Double_t vwidth)
 // using Lorentz function
 
   Double_t weight;
-
-  if( vwidth < 1e-6 ){
-    printf(Form("ExodusDecayer: Warning: Width = %f (Mass = %f) < 1e-6, set to 1e-6\n",vwidth,vmass));
-    vwidth = 1e-6;
-  }
 
   weight = (vwidth*vwidth/4.0)/(vwidth*vwidth/4.0+(vmass-mass)*(vmass-mass));
 
