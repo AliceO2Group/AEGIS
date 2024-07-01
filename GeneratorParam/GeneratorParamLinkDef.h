@@ -11,5 +11,8 @@
 #pragma link C++ class GeneratorParamEMlibV2+;
 #pragma link C++ class PythiaDecayerConfig+;
 #pragma link C++ class ExodusDecayer+;
+#pragma link C++ class TPythia6+;
+#pragma link C++ class TPythia6Decayer+;
+#pragma link C++ class TMCParticle+;
 
 #endif

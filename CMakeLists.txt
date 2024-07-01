@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
 project(AEGIS)
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+
 add_subdirectory(MICROCERN)
 
 add_subdirectory(TEPEMGEN)
