@@ -19,9 +19,10 @@
 // Allows to force decay channels.
 // Author: andreas.morsch@cern.ch
 
-#include <TPythia6.h>
 #include <TLorentzVector.h>
 #include "ExodusDecayer.h"
+
+class TPythia6;
 
 typedef enum {
   kBSemiElectronic,
