@@ -354,7 +354,7 @@ void ExodusDecayer::Init()
      mass_bin = mass_min+(Double_t)(ibin-1)*binwidth+binwidth/2.0;
 
 //     weight_rho     = (Float_t)GounarisSakurai(mass_bin,vmass_rho,vwidth_rho,emass);
-     weight_eta     = (Float_t)Lorentz(mass_bin,vmass_eta,vwidth_eta);
+     weight_eta     = (Float_t)GounarisSakurai(mass_bin,vmass_eta,vwidth_eta,emass);
      weight_rho     = (Float_t)RhoShapeFromNA60(mass_bin,vmass_rho,vwidth_rho,emass);
 
      weight_omega   = (Float_t)GounarisSakurai(mass_bin,vmass_omega,vwidth_omega,emass);
