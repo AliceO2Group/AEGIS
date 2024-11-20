@@ -106,8 +106,10 @@ public:
   virtual void SwitchOffBDecay();
   virtual void SwitchOffPi0() { fPi0 = 0; }
   virtual void SwitchOffParticle(Int_t kf);
+  virtual void DecayToDimuons(){fDecayToDimuon = 1;}
 
   void PizeroDalitz();
+  void EtaDirect();
   void EtaDalitz();
   void RhoDirect();
   void OmegaDalitz();
@@ -148,6 +150,7 @@ private:
   Bool_t fPi0;              //! Flag for pi0 decay
   static Bool_t fgInit;     //! initialization flag
   TString fDecayTableFile;   // Decay table to be read
+  Bool_t fDecayToDimuon;    // Decay to dimuons instead of dielectrons
 
   ClassDef(PythiaDecayerConfig, 1) // AliDecayer implementation using Pythia
 };
