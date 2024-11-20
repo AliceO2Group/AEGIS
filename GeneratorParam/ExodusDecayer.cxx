@@ -426,7 +426,7 @@ Double_t ExodusDecayer::RhoShapeFromNA60(Float_t mass, Double_t vmass, Double_t 
   double mThreshold = 2.*mPi;
 
   //  const double T = 0.170; // Assumption of pi+ temperature [GeV/c2]
-  const double T=0.161;//GounarisSakuraimeasured value
+  const double T=0.161;//measured value
 
   if (mass < mThreshold) {
     r = 0.;
