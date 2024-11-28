@@ -139,7 +139,7 @@ void ExodusDecayer::Init()
     // create pair mass histograms for Dalitz decays of pi0, eta, omega, eta' and phi
     fEPMassPion = new TH1F("fEPMassPion", "Dalitz electron pair from pion", nbins, min, maxpion);
     fEPMassPion->SetDirectory(0);
-    fEPMassEtaDalitz = new TH1F("fEPMassEta", "Dalitz electron pair from eta", nbins, min, maxeta);
+    fEPMassEtaDalitz = new TH1F("fEPMassEtaDalitz", "Dalitz electron pair from eta", nbins, min, maxeta);
     fEPMassEtaDalitz->SetDirectory(0);
     fEPMassOmegaDalitz = new TH1F("fEPMassOmegaDalitz", "Dalitz electron pair from omega ", nbins, min, maxomega);
     fEPMassOmegaDalitz->SetDirectory(0);
