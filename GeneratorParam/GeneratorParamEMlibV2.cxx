@@ -1214,7 +1214,7 @@ TF1* GeneratorParamEMlibV2::MtScal(Int_t np, TString name, Bool_t isMeson)
   }
   formulaBaseScaled = formulaBaseScaledTemp;
 
-  printf("GeneratorParamEMlibV2: Create TF1 for %s from isMeson = %d with norm = %d\n",name.Data(),isMeson,norm);
+  printf("GeneratorParamEMlibV2: Create TF1 for %s from isMeson = %d with norm = %f\n",name.Data(),isMeson,norm);
   TF1* result = new TF1(name.Data(), Form("%.10f * (x/%s) * (%s)", norm, scaledPt.Data(), formulaBaseScaled.Data()), xmin, xmax);
   if (!isMeson && fPtParametrizationProton) {
     for (Int_t i=0; i<nPar; i++) {
