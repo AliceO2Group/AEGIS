@@ -50,6 +50,7 @@ class ExodusDecayer : public TVirtualMCDecayer
     virtual Float_t GetPartialBranchingRatio(Int_t /*ipart*/) {return -1;}
     virtual Float_t GetLifetime(Int_t /*kf*/)                 {return -1;}
     virtual void    ReadDecayTable()                          {;}
+    virtual void    DecayToDimuons()                          {fDecayToDimuon = 1;}
     
     virtual TH1F*   ElectronPairMassHistoPion()          {return  fEPMassPion;}
     virtual TH1F*   ElectronPairMassHistoEta()           {return  fEPMassEta;}
@@ -65,6 +66,7 @@ class ExodusDecayer : public TVirtualMCDecayer
 
     virtual const   TLorentzVector* Products_pion()         const {return fProducts_pion;}
     virtual const   TLorentzVector* Products_eta()          const {return fProducts_eta;}
+    virtual const   TLorentzVector* Products_eta_dalitz()          const {return fProducts_eta_dalitz;}
     virtual const   TLorentzVector* Products_etaprime()     const {return fProducts_etaprime;}
     virtual const   TLorentzVector* Products_etaprime_toOmega()     const {return fProducts_etaprime_toOmega;}
     virtual const   TLorentzVector* Products_rho()          const {return fProducts_rho;}
@@ -79,6 +81,7 @@ class ExodusDecayer : public TVirtualMCDecayer
     // Histograms for electron pair mass
     TH1F*         fEPMassPion;          
     TH1F*         fEPMassEta;       
+    TH1F*         fEPMassEtaDalitz;       
     TH1F*         fEPMassEtaPrime;
     TH1F*         fEPMassEtaPrime_toOmega;
     TH1F*         fEPMassRho;
@@ -93,7 +96,8 @@ class ExodusDecayer : public TVirtualMCDecayer
 
     // Decay products
     TLorentzVector  fProducts_pion[3];  
-    TLorentzVector  fProducts_eta[3];  
+    TLorentzVector  fProducts_eta[2];  
+    TLorentzVector  fProducts_eta_dalitz[3];  
     TLorentzVector  fProducts_etaprime[3];
     TLorentzVector  fProducts_etaprime_toOmega[3];
     TLorentzVector  fProducts_rho[2];
@@ -111,6 +115,7 @@ class ExodusDecayer : public TVirtualMCDecayer
     Double_t GounarisSakurai(Float_t mass, Double_t vmass, Double_t vwidth, Double_t emass);
     Double_t RhoShapeFromNA60(Float_t mass, Double_t vmass, Double_t vwidth, Double_t emass);
     Double_t Lorentz(Float_t mass, Double_t vmass, Double_t vwidth); 
+    Bool_t fDecayToDimuon;    // Decay to dimuons instead of dielectrons
 
     ClassDef(ExodusDecayer, 1)
 };

@@ -28,7 +28,7 @@ ClassImp(PythiaDecayerConfig)
 
     PythiaDecayerConfig::PythiaDecayerConfig()
     : TVirtualMCDecayer(), fDecay(kAll), fHeavyFlavour(kTRUE), fLongLived(kFALSE),
-      fPatchOmegaDalitz(0), fDecayerExodus(nullptr), fPi0(1) {
+      fPatchOmegaDalitz(0), fDecayerExodus(nullptr), fPi0(1), fDecayToDimuon(0) {
   // Default Constructor
   for (Int_t i = 0; i < 501; i++)
     fBraPart[i] = 1.;
@@ -36,7 +36,7 @@ ClassImp(PythiaDecayerConfig)
 
 PythiaDecayerConfig::PythiaDecayerConfig(const PythiaDecayerConfig &decayer)
     : fDecay(kAll), fHeavyFlavour(kTRUE), fLongLived(kFALSE),
-      fPatchOmegaDalitz(0), fDecayerExodus(nullptr), fPi0(1) {
+      fPatchOmegaDalitz(0), fDecayerExodus(nullptr), fPi0(1), fDecayToDimuon(0) {
   // Copy Constructor
   decayer.Copy(*this);
   for (Int_t i = 0; i < 501; i++)
@@ -46,6 +46,7 @@ PythiaDecayerConfig::PythiaDecayerConfig(const PythiaDecayerConfig &decayer)
 void PythiaDecayerConfig::Init() {
 
   if (fDecayerExodus){
+    if (fDecayToDimuon == 1) fDecayerExodus->DecayToDimuons();
     fDecayerExodus->Init();
   }
 
@@ -190,6 +191,7 @@ void PythiaDecayerConfig::ForceDecay() {
     ForceParticleDecay(113, 13, 2);    // rho
     ForceParticleDecay(221, 13, 2);    // eta
     ForceParticleDecay(223, 13, 2);    // omega
+    ForceParticleDecay(331, 13, 2);    // etaprime
     ForceParticleDecay(333, 13, 2);    // phi
     ForceParticleDecay(443, 13, 2);    // J/Psi
     ForceParticleDecay(100443, 13, 2); // Psi'
@@ -941,6 +943,7 @@ void PythiaDecayerConfig::Decay(Int_t idpart, TLorentzVector* p) {
     else if(idpart == 221){
       fPythia->SetMDCY(fPythia->Pycomp(22) ,1, 0);
       fPythia->Py1ent(0, idpart, energy, theta, phi);
+      if (fDecayToDimuon == 1) EtaDirect();
       EtaDalitz();
       fPythia->SetMDCY(fPythia->Pycomp(22) ,1, 1);
     }
@@ -957,20 +960,28 @@ void PythiaDecayerConfig::Decay(Int_t idpart, TLorentzVector* p) {
     }
     else if(idpart == 331){
       fPythia->SetMDCY(fPythia->Pycomp(22) ,1, 0);
-      fPythia->SetMDCY(fPythia->Pycomp(223) ,1, 0);
+      if (fDecayToDimuon == 0) fPythia->SetMDCY(fPythia->Pycomp(223) ,1, 0);
       fPythia->Py1ent(0, idpart, energy, theta, phi);
       EtaprimeDalitz();
-      fPythia->SetMDCY(fPythia->Pycomp(223) ,1, 1);
+      if (fDecayToDimuon == 0) fPythia->SetMDCY(fPythia->Pycomp(223) ,1, 1);
       fPythia->SetMDCY(fPythia->Pycomp(22) ,1, 1);
     }
     else if(idpart == 333){
-      fPythia->SetMDCY(fPythia->Pycomp(221) ,1, 0);
-      fPythia->SetMDCY(fPythia->Pycomp(111) ,1, 0);
+      if (fDecayToDimuon == 0) {
+        fPythia->SetMDCY(fPythia->Pycomp(221) ,1, 0);
+        fPythia->SetMDCY(fPythia->Pycomp(111) ,1, 0);
+      } else {
+        fPythia->SetMDCY(fPythia->Pycomp(22) ,1, 0);
+      }
       fPythia->Py1ent(0, idpart, energy, theta, phi);
       PhiDirect();
       PhiDalitz();
-      fPythia->SetMDCY(fPythia->Pycomp(111) ,1, 1);
-      fPythia->SetMDCY(fPythia->Pycomp(221) ,1, 1);
+      if (fDecayToDimuon == 0) {
+        fPythia->SetMDCY(fPythia->Pycomp(111) ,1, 1);
+        fPythia->SetMDCY(fPythia->Pycomp(221) ,1, 1);
+      } else {
+        fPythia->SetMDCY(fPythia->Pycomp(22) ,1, 1);
+      }
     }
     else if(idpart == 443){
       fPythia->Py1ent(0, idpart, energy, theta, phi);
@@ -1002,6 +1013,27 @@ void PythiaDecayerConfig::PizeroDalitz(){
   }
 }
 
+void PythiaDecayerConfig::EtaDirect(){
+  Int_t nt = fPythia->GetN();
+  for (Int_t i = 0; i < nt; i++) {
+    if (fPythia->GetK(i+1,2) != 221) continue;
+    Int_t fd = fPythia->GetK(i+1,4) - 1;
+    Int_t ld = fPythia->GetK(i+1,5) - 1;
+    if (fd < 0) continue;
+    if ((ld - fd) != 1) continue;
+    if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 13)) continue;
+    TLorentzVector eta(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
+    Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
+    fDecayerExodus->Decay(pdg, &eta);
+    for (Int_t j = 0; j < 2; j++) {
+      for (Int_t k = 0; k < 4; k++) {
+        TLorentzVector vec = (fDecayerExodus->Products_eta())[1-j];
+        fPythia->SetP(fd+j+1,k+1,vec[k]);
+      }
+    }
+  }
+}
+
 void PythiaDecayerConfig::EtaDalitz(){
   Int_t nt = fPythia->GetN();
   for (Int_t i = 0; i < nt; i++) {
@@ -1010,13 +1042,17 @@ void PythiaDecayerConfig::EtaDalitz(){
     Int_t ld = fPythia->GetK(i+1,5) - 1;
     if (fd < 0) continue;
     if ((ld - fd) != 2) continue;
-    if ((fPythia->GetK(fd+1,2) != 22) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 11) ) continue;
+    if (fDecayToDimuon == 0) {
+      if ((fPythia->GetK(fd+1,2) != 22) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 11) ) continue;
+    } else {
+      if ((fPythia->GetK(fd+1,2) != 22) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 13) ) continue;
+    }
     TLorentzVector eta(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
     Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
     fDecayerExodus->Decay(pdg+1000*fPythia->GetK(fd+1,2), &eta);
     for (Int_t j = 0; j < 3; j++) {
       for (Int_t k = 0; k < 4; k++) {
-        TLorentzVector vec = (fDecayerExodus->Products_eta())[2-j];
+        TLorentzVector vec = (fDecayerExodus->Products_eta_dalitz())[2-j];
         fPythia->SetP(fd+j+1,k+1,vec[k]);
       }
     }
@@ -1031,7 +1067,11 @@ void PythiaDecayerConfig::RhoDirect(){
     Int_t ld = fPythia->GetK(i+1,5) - 1;
     if (fd < 0) continue;
     if ((ld - fd) != 1) continue;
-    if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 11)) continue;
+    if (fDecayToDimuon == 0) {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 11)) continue;
+    } else {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 13)) continue;
+    }
     TLorentzVector rho(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
     Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
     fDecayerExodus->Decay(pdg, &rho);
@@ -1052,7 +1092,11 @@ void PythiaDecayerConfig::OmegaDalitz(){
     Int_t ld = fPythia->GetK(i+1,5) - 1;
     if (fd < 0) continue;
     if ((ld - fd) != 2) continue;
-    if ((fPythia->GetK(fd+1,2) != 111) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 11)) continue;
+    if (fDecayToDimuon == 0) {
+      if ((fPythia->GetK(fd+1,2) != 111) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 11)) continue;
+    } else {
+      if ((fPythia->GetK(fd+1,2) != 111) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 13)) continue;
+    }
     TLorentzVector omegadalitz(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
     Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
     fDecayerExodus->Decay(pdg+1000*fPythia->GetK(fd+1,2), &omegadalitz);
@@ -1073,7 +1117,11 @@ void PythiaDecayerConfig::OmegaDirect(){
     Int_t ld = fPythia->GetK(i+1,5) - 1;
     if (fd < 0) continue;
     if ((ld - fd) != 1) continue;
-    if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 11)) continue;
+    if (fDecayToDimuon == 0) {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 11)) continue;
+    } else {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 13)) continue;
+    }
     TLorentzVector omegadirect(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
     Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
     fDecayerExodus->Decay(pdg, &omegadirect);
@@ -1094,7 +1142,11 @@ void PythiaDecayerConfig::EtaprimeDalitz(){
     Int_t ld = fPythia->GetK(i+1,5) - 1;
     if (fd < 0) continue;
     if ((ld - fd) != 2) continue;
-    if ((fPythia->GetK(fd+1,2) != 22 && fPythia->GetK(fd+1,2) != 223) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 11)) continue;
+    if (fDecayToDimuon == 0) {
+      if ((fPythia->GetK(fd+1,2) != 22 && fPythia->GetK(fd+1,2) != 223) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 11)) continue;
+    } else {
+      if (fPythia->GetK(fd+1,2) != 22 || (TMath::Abs(fPythia->GetK(fd+2,2)) != 13)) continue;
+    }
     TLorentzVector etaprime(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
     Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
     fDecayerExodus->Decay(pdg+1000*fPythia->GetK(fd+1,2), &etaprime);
@@ -1115,7 +1167,11 @@ void PythiaDecayerConfig::PhiDalitz(){
     Int_t ld = fPythia->GetK(i+1,5) - 1;
     if (fd < 0) continue;
     if ((ld - fd) != 2) continue;
-    if ((fPythia->GetK(fd+1,2) != 221 && fPythia->GetK(fd+1,2) != 111 ) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 11)) continue;
+    if (fDecayToDimuon == 0) {
+      if ((fPythia->GetK(fd+1,2) != 221 && fPythia->GetK(fd+1,2) != 111 ) || (TMath::Abs(fPythia->GetK(fd+2,2)) != 11)) continue;
+    } else {
+      if (fPythia->GetK(fd+1,2) != 22 || (TMath::Abs(fPythia->GetK(fd+2,2)) != 13)) continue;
+    }
     TLorentzVector phidalitz(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
     Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
     fDecayerExodus->Decay(pdg+1000*fPythia->GetK(fd+1,2), &phidalitz);
@@ -1136,7 +1192,11 @@ void PythiaDecayerConfig::PhiDirect(){
     Int_t ld = fPythia->GetK(i+1,5) - 1;
     if (fd < 0) continue;
     if ((ld - fd) != 1) continue;
-    if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 11)) continue;
+    if (fDecayToDimuon == 0) {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 11)) continue;
+    } else {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 13)) continue;
+    }
     TLorentzVector phi(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
     Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
     fDecayerExodus->Decay(pdg, &phi);
@@ -1157,7 +1217,11 @@ void PythiaDecayerConfig::JPsiDirect(){
     Int_t ld = fPythia->GetK(i+1,5) - 1;
     if (fd < 0) continue;
     if ((ld - fd) != 1) continue;
-    if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 11)) continue;
+    if (fDecayToDimuon == 0) {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 11)) continue;
+    } else {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 13)) continue;
+    }
     TLorentzVector jpsi(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
     Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
     fDecayerExodus->Decay(pdg, &jpsi);
