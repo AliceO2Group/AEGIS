@@ -118,6 +118,8 @@ public:
   void PhiDalitz();
   void PhiDirect();
   void JPsiDirect();
+  void Psi2SDirect();
+  void UpsilonDirect();
 
 private:
   Int_t CountProducts(Int_t channel, Int_t particle);

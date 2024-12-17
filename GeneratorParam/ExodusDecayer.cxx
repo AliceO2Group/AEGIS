@@ -29,6 +29,8 @@ ExodusDecayer::ExodusDecayer():
     fEPMassPhiDalitz(0),
     fEPMassPhiDalitz_toPi0(0),
     fEPMassJPsi(0),
+    fEPMassPsi2S(0),
+    fEPMassUpsilon(0),
     fPol(new TF1("dsigdcostheta","1.+[0]*x*x",-1.,1.)), /* Polarization Function for resonances */
     fInit(0),
     fDecayToDimuon(0)
@@ -51,6 +53,8 @@ ExodusDecayer::~ExodusDecayer()
   delete fEPMassPhiDalitz;
   delete fEPMassPhiDalitz_toPi0;
   delete fEPMassJPsi;
+  delete fEPMassPsi2S;
+  delete fEPMassUpsilon;
   delete fPol;
 }
 
@@ -74,8 +78,8 @@ void ExodusDecayer::Init()
 
    Float_t  binwidth;
    Float_t  mass_bin, mass_min, mass_max;
-   Double_t vmass_eta, vmass_rho, vmass_omega, vmass_phi, vmass_jpsi, vwidth_eta, vwidth_rho, vwidth_omega, vwidth_phi, vwidth_jpsi;
-   Double_t weight_eta, weight_rho, weight_omega, weight_phi, weight_jpsi;
+   Double_t vmass_eta, vmass_rho, vmass_omega, vmass_phi, vmass_jpsi, vmass_psi2s, vmass_upsilon, vwidth_eta, vwidth_rho, vwidth_omega, vwidth_phi, vwidth_jpsi, vwidth_psi2s, vwidth_upsilon;
+   Double_t weight_eta, weight_rho, weight_omega, weight_phi, weight_jpsi, weight_psi2s, weight_upsilon;
 
 //================================================================================//
 //          Create electron pair mass histograms from dalitz decays               //
@@ -83,7 +87,7 @@ void ExodusDecayer::Init()
 
     // Get the particle masses
     // parent
-    nbins = 1000;
+    nbins = 2000;
     mass_min = 0.;
     mass_max = 0.;
     pionmass     = (TDatabasePDG::Instance()->GetParticle(111))->Mass();
@@ -315,6 +319,8 @@ void ExodusDecayer::Init()
    vmass_omega = (TDatabasePDG::Instance()->GetParticle(223))->Mass();  
    vmass_phi   = (TDatabasePDG::Instance()->GetParticle(333))->Mass();  
    vmass_jpsi  = (TDatabasePDG::Instance()->GetParticle(443))->Mass();
+   vmass_psi2s  = (TDatabasePDG::Instance()->GetParticle(100443))->Mass();
+   vmass_upsilon  = (TDatabasePDG::Instance()->GetParticle(553))->Mass();
    // Get the particle widths
    // parent
    vwidth_eta   = (TDatabasePDG::Instance()->GetParticle(221))->Width();  
@@ -322,22 +328,32 @@ void ExodusDecayer::Init()
    vwidth_omega = (TDatabasePDG::Instance()->GetParticle(223))->Width();  
    vwidth_phi   = (TDatabasePDG::Instance()->GetParticle(333))->Width();  
    vwidth_jpsi  = (TDatabasePDG::Instance()->GetParticle(443))->Width();
+   vwidth_psi2s  = (TDatabasePDG::Instance()->GetParticle(100443))->Width();
+   vwidth_upsilon  = (TDatabasePDG::Instance()->GetParticle(553))->Width();
 
    if( vwidth_jpsi < 1e-6 ){
     printf(Form("ExodusDecayer: Warning: Width JPsi = %f (Mass = %f) < 1e-6, set to 1e-6\n",vwidth_jpsi,vmass_jpsi));
     vwidth_jpsi = 1e-6;
+  }
+  if( vwidth_psi2s < 1e-6 ){
+    printf(Form("ExodusDecayer: Warning: Width Psi2S = %f (Mass = %f) < 1e-6, set to 1e-6\n",vwidth_psi2s,vmass_psi2s));
+    vwidth_psi2s = 1e-6;
+  }
+  if( vwidth_upsilon < 1e-6 ){
+    printf(Form("ExodusDecayer: Warning: Width Upsilon = %f (Mass = %f) < 1e-6, set to 1e-6\n",vwidth_upsilon,vmass_upsilon));
+    vwidth_upsilon = 1e-6;
   }
 
 
        if ( mass_min == 0. && mass_max == 0. )
           {
            mass_min  = 2.*pimass;
-           mass_max  = 5.;
+           mass_max  = 10.;
           }
 
      binwidth  = (mass_max-mass_min)/(Double_t)nbins;
 
-     // create pair mass histograms for resonances of rho, omega, phi and jpsi
+     // create pair mass histograms for resonances of rho, omega, phi, jpsi, psi2s and upsilon
      fEPMassEta    = new TH1F("fEPMassEta","mass eta",nbins,mass_min,mass_max);
      fEPMassEta->SetDirectory(0);
      fEPMassRho    = new TH1F("fEPMassRho","mass rho",nbins,mass_min,mass_max);
@@ -348,6 +364,10 @@ void ExodusDecayer::Init()
      fEPMassPhi->SetDirectory(0);
      fEPMassJPsi   = new TH1F("fEPMassJPsi","mass jpsi",nbins,mass_min,mass_max);
      fEPMassJPsi->SetDirectory(0);
+     fEPMassPsi2S   = new TH1F("fEPMassPsi2S","mass psi2s",nbins,mass_min,mass_max);
+     fEPMassPsi2S->SetDirectory(0);
+     fEPMassUpsilon   = new TH1F("fEPMassUpsilon","mass upsilon",nbins,mass_min,mass_max);
+     fEPMassUpsilon->SetDirectory(0);
 
      for (ibin=1; ibin<=nbins; ibin++ )
      {
@@ -360,6 +380,8 @@ void ExodusDecayer::Init()
      weight_omega   = (Float_t)GounarisSakurai(mass_bin,vmass_omega,vwidth_omega,emass);
      weight_phi     = (Float_t)GounarisSakurai(mass_bin,vmass_phi,vwidth_phi,emass); 
      weight_jpsi    = (Float_t)Lorentz(mass_bin,vmass_jpsi,vwidth_jpsi);
+     weight_psi2s    = (Float_t)Lorentz(mass_bin,vmass_psi2s,vwidth_psi2s);
+     weight_upsilon    = (Float_t)Lorentz(mass_bin,vmass_upsilon,vwidth_upsilon);
 
      // Fill histograms of electron pair masses from resonance decays
      fEPMassEta  ->AddBinContent(ibin,weight_eta);
@@ -367,6 +389,8 @@ void ExodusDecayer::Init()
      fEPMassOmega->AddBinContent(ibin,weight_omega);
      fEPMassPhi  ->AddBinContent(ibin,weight_phi);
      fEPMassJPsi ->AddBinContent(ibin,weight_jpsi);
+     fEPMassPsi2S ->AddBinContent(ibin,weight_psi2s);
+     fEPMassUpsilon ->AddBinContent(ibin,weight_upsilon);
     }  
     fInit=1;
 }
@@ -478,7 +502,11 @@ void ExodusDecayer::Decay(Int_t idpart, TLorentzVector* pparent)
 
    // -------- get id of the partner from idpart  ------- //
    Int_t idpartner=idpart/1000;
-   idpart=idpart%1000;
+   if (idpart!=100443){ //protect psi(2S) pdg code (100443)
+    idpart=idpart%1000;
+   } else {
+    idpartner=0;
+   }
 
    //local variables for dalitz/2-body decay:
    Double_t pmass, epmass, realp_mass, e1, p1, e3, p3;
@@ -492,6 +520,8 @@ void ExodusDecayer::Decay(Int_t idpart, TLorentzVector* pparent)
    Int_t idPi0=111;
    Int_t idEta=221;
    Int_t idEtaPrime=331;
+   Int_t idPsi2S=100443;
+   Int_t idUpsilon=553;
 
    // Get the particle masses of daughters
    Double_t emass, proton_mass, omass_pion, omass_eta, omass_gamma, omass_omega;
@@ -651,11 +681,9 @@ void ExodusDecayer::Decay(Int_t idpart, TLorentzVector* pparent)
 
 
 //-----------------------------------------------------------------------------//
-//             Generate 2-body resonance decays: Rho/Omega/Phi/JPsi            //
+//   Generate 2-body resonance decays: Rho/Omega/Phi/JPsi/Psi2S/Upsilon        //
 //-----------------------------------------------------------------------------//
-   
-  if(((idpart==idEta&&fDecayToDimuon==1)||idpart==idRho||idpart==idOmega||idpart==idPhi||idpart==idJPsi)&&(idpartner==0)){
-
+  if(((idpart==idEta&&fDecayToDimuon==1)||idpart==idRho||idpart==idOmega||idpart==idPhi||idpart==idJPsi||idpart==idPsi2S||idpart==idUpsilon)&&(idpartner==0)){
 
    //get the parent mass
    mp_res = pparent->M();
@@ -666,7 +694,6 @@ void ExodusDecayer::Decay(Int_t idpart, TLorentzVector* pparent)
         printf("ExodusDecayer: res into ee Decay kinematically impossible! \n");
         return;
    }
-
    // Sample the electron pair mass from a histogram and set Polarization
    for( ;; ) {
         if(idpart==idEta&&fDecayToDimuon==1){
@@ -687,6 +714,12 @@ void ExodusDecayer::Decay(Int_t idpart, TLorentzVector* pparent)
         }else if(idpart==idJPsi){
 	 epmass_res = fEPMassJPsi->GetRandom();
 	 PolPar=0.;
+        }else if(idpart==idPsi2S){
+     epmass_res = fEPMassPsi2S->GetRandom();
+     PolPar=0.;
+        } else if(idpart==idUpsilon){
+     epmass_res = fEPMassUpsilon->GetRandom();
+     PolPar=0.;
         }else{ printf("ExodusDecayer: ERROR: Resonance mass G-S parametrization not found \n");
                return;
         }
@@ -757,6 +790,12 @@ void ExodusDecayer::Decay(Int_t idpart, TLorentzVector* pparent)
    }else  if(idpart==idJPsi){
     fProducts_jpsi[0]=fProducts_res[0];
     fProducts_jpsi[1]=fProducts_res[1];
+   }else  if(idpart==idPsi2S){
+    fProducts_psi2s[0]=fProducts_res[0];
+    fProducts_psi2s[1]=fProducts_res[1];
+   }else  if(idpart==idUpsilon){
+    fProducts_upsilon[0]=fProducts_res[0];
+    fProducts_upsilon[1]=fProducts_res[1];
    }
 
  }

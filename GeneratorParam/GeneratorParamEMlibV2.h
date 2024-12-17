@@ -17,11 +17,13 @@ class GeneratorParamEMlibV2 : public GeneratorParamLibBase {
   
 public:
   
-  enum Particle_t{kPizero=0, kEta=1, kRho0=2, kOmega=3, kEtaprime=4, kPhi=5, kJpsi=6,
-    kSigma0=7, kK0s=8, kDeltaPlPl=9, kDeltaPl=10, kDeltaMi=11, kDeltaZero=12,
-    kRhoPl=13, kRhoMi=14, kK0star=15, kK0l=16, kLambda=17, kKPl=18, kKMi=19,
-    kOmegaPl=20, kOmegaMi=21, kXiPl=22, kXiMi=23, kSigmaPl=24, kSigmaMi=25,
-    kDirectRealGamma=26, kDirectVirtGamma=27, kNParticles=28};
+  enum Particle_t{kPizero=0, kEta, kRho0, kOmega, kEtaprime, kPhi, kJpsi, kPsi2S, kUpsilon,
+    kSigma0, kK0s, kDeltaPlPl, kDeltaPl, kDeltaMi, kDeltaZero,
+    kRhoPl, kRhoMi, kK0star, kK0l, kLambda, kKPl, kKMi,
+    kOmegaPl, kOmegaMi, kXiPl, kXiMi, kSigmaPl, kSigmaMi,
+    kDirectRealGamma, kDirectVirtGamma, kNParticles};
+
+   static const int kNHadrons = kNParticles-2; // total number of particles minus DirectRealGamma and DirectVirtGamma
 
   enum CollisionSystem_t {kpp900GeV=0x000, kpp2760GeV=0x64, kpp7TeV=0xC8, kpPb=0x12C, kPbPb=0x190};
   
@@ -77,8 +79,8 @@ public:
   static const Double_t fgkV2param[kCentralities][16];                     // parameters of pi v2
   static const Double_t fgkRawPtOfV2Param[kCentralities][10];              // parameters of the raw pt spectrum of v2 analysys
   static const Double_t fgkThermPtParam[kCentralities][2];                 // parameters of thermal gamma pt
-  static const Double_t fgkHM[26];                                         // particle masses
-  static const Double_t fgkMtFactor[3][26];                                // mt scaling factor
+  static const Double_t fgkHM[kNHadrons];                                         // particle masses
+  static const Double_t fgkMtFactor[3][kNHadrons];                                // mt scaling factor
 
   // direct gamma
   static Double_t PtPromptRealGamma(const Double_t *px, const Double_t *dummy);
@@ -137,6 +139,18 @@ public:
   static Double_t PtJpsi(const Double_t *px, const Double_t *dummy);
   static Double_t YJpsi(const Double_t *py, const Double_t *dummy);
   static Double_t V2Jpsi(const Double_t *py, const Double_t *dummy);
+
+  // psi(2S)
+  static Int_t    IpPsi2S(TRandom *ran);
+  static Double_t PtPsi2S(const Double_t *px, const Double_t *dummy);
+  static Double_t YPsi2S(const Double_t *py, const Double_t *dummy);
+  static Double_t V2Psi2S(const Double_t *py, const Double_t *dummy);
+
+  // Upsilon
+  static Int_t    IpUpsilon(TRandom *ran);
+  static Double_t PtUpsilon(const Double_t *px, const Double_t *dummy);
+  static Double_t YUpsilon(const Double_t *py, const Double_t *dummy);
+  static Double_t V2Upsilon(const Double_t *py, const Double_t *dummy);
   
   // Sigma
   static Int_t    IpSigma0(TRandom *ran);
@@ -253,12 +267,12 @@ public:
   static Double_t V2SigmaMi(const Double_t *px, const Double_t *dummy);
 
 private:
-  static TF1*     fPtParametrization[26];     // pt paramtrizations
+  static TF1*     fPtParametrization[kNHadrons];     // pt paramtrizations
   static TF1*     fPtParametrizationProton;   // pt paramtrization
   static TH1D*    fMtFactorHisto;             // mt scaling factors
-  static TH2F*    fPtYDistribution[26];       // pt-y distributions
-  static TF1*     fV2Parametrization[27];     // pt paramtrizations
-  static Int_t    fV2RefParameterization[27]; // ID of a hadron used for parameterization of V2 for Et scaling
+  static TH2F*    fPtYDistribution[kNHadrons];       // pt-y distributions
+  static TF1*     fV2Parametrization[kNHadrons+1];     // pt paramtrizations
+  static Int_t    fV2RefParameterization[kNHadrons+1]; // ID of a hadron used for parameterization of V2 for Et scaling
 
   ClassDef(GeneratorParamEMlibV2,7);
 };

@@ -108,10 +108,10 @@ const Double_t GeneratorParamEMlibV2::fgkThermPtParam[kCentralities][2] = {
   ,{ 8.088291e-01, 2.013231e+00 } // 20-50
 };
 
-// MASS   0=>PIZERO, 1=>ETA, 2=>RHO0, 3=>OMEGA, 4=>ETAPRIME, 5=>PHI, 6=>JPSI, 7=>SIGMA, 8=>K0s, 9=>DELTA++, 10=>DELTA+, 11=>DELTA-, 12=>DELTA0, 13=>Rho+, 14=>Rho-, 15=>K0*, 16=>K0l, 17=>Lambda, 18=>K+, 19=>K-, 20=>Omega+, 21=>Omega-, 22=>Xi+, 23=>Xi-, 24=>Sigma+, 25=>Sigma-
-const Double_t GeneratorParamEMlibV2::fgkHM[26] = {0.1349766, 0.547853, 0.77549, 0.78265, 0.95778, 1.019455, 3.096916, 1.192642, 0.497614, 1.2311, 1.2349, 1.2349, 1.23340, 0.77549, 0.77549, 0.896, 0.497614, 1.115683, 0.493677, 0.493677, 1.67245, 1.67245, 1.32171, 1.32171, 1.3828, 1.3872};
+// MASS                                                     PIZERO,     ETA,     RHO0,   OMEGA, ETAPRIME,   PHI,       JPSI,   PSI(2S)  UPSILON   SIGMA,    K0s,    DELTA++, DELTA+, DELTA-, DELTA0,  Rho+,     Rho-,   K0*,    K0l,      Lambda,   K+,       K-,       Omega+, Omega-,   Xi+,      Xi-,    Sigma+, Sigma-
+const Double_t GeneratorParamEMlibV2::fgkHM[kNHadrons] = {0.1349768, 0.547862, 0.77526, 0.78266, 0.95778, 1.019461, 3.096900, 3.686097, 9.46040, 1.192642, 0.497614, 1.2311, 1.2349, 1.2349, 1.23340, 0.77549, 0.77549, 0.896, 0.497614, 1.115683, 0.493677, 0.493677, 1.67245, 1.67245, 1.32171, 1.32171, 1.3828, 1.3872};
 
-const Double_t GeneratorParamEMlibV2::fgkMtFactor[3][26] = {
+const Double_t GeneratorParamEMlibV2::fgkMtFactor[3][kNHadrons] = {
   // {1.0, 0.5, 1.0, 0.9, 0.4, 0.23, 0.054},  // factor for pp from arXiv:1110.3929
   // {1.0, 0.55, 1.0, 0.9, 0.4, 0.25, 0.004}    // factor for PbPb from arXiv:1110.3929
   //{1., 0.48, 1.0, 0.9, 0.25, 0.4}, (old values)
@@ -125,9 +125,9 @@ const Double_t GeneratorParamEMlibV2::fgkMtFactor[3][26] = {
   /*best guess:
    - pp values for eta/pi0 [arXiv:1205.5724], omega/pi0 [arXiv:1210.5749], phi/(pi+/-) [arXiv:1208.5717], K+-/pi+- [arXiv:1504.00024v2] from measured 7 Tev data
    */
-  {1., 0.476, 1.0, 0.85, 0.4, 0.13, 1., 0.49, 0.575, 1, 1, 1, 1, 1.0, 1.0, 1.0, 0.575, 0.18, 0.41, 0.41, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}, //pp
-  {1., 0.476, 1.0, 0.85, 0.4, 0.25, 1., 0.49, 0.575, 1, 1, 1, 1, 1.0, 1.0, 1.0, 0.575, 0.18, 0.41, 0.41, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}, //pPb
-  {1., 0.476, 1.0, 0.85, 0.4, 0.25, 1., 0.49, 0.575, 1, 1, 1, 1, 1.0, 1.0, 1.0, 0.575, 0.18, 0.41, 0.41, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}  //PbPb
+  {1., 0.476, 1.0, 0.85, 0.4, 0.13, 1.,1., 1., 0.49, 0.575, 1, 1, 1, 1, 1.0, 1.0, 1.0, 0.575, 0.18, 0.41, 0.41, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}, //pp
+  {1., 0.476, 1.0, 0.85, 0.4, 0.25, 1.,1., 1.,  0.49, 0.575, 1, 1, 1, 1, 1.0, 1.0, 1.0, 0.575, 0.18, 0.41, 0.41, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}, //pPb
+  {1., 0.476, 1.0, 0.85, 0.4, 0.25, 1.,1., 1., 0.49, 0.575, 1, 1, 1, 1, 1.0, 1.0, 1.0, 0.575, 0.18, 0.41, 0.41, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}  //PbPb
 };
 
 // Exponential
@@ -527,6 +527,72 @@ Double_t GeneratorParamEMlibV2::V2Jpsi( const Double_t *px, const Double_t */*du
       return KEtScal(*px,kJpsi);
   }
   return 0;
+}
+
+//--------------------------------------------------------------------------
+//
+//                              Psi2S
+//
+//--------------------------------------------------------------------------
+Int_t GeneratorParamEMlibV2::IpPsi2S(TRandom *)
+{
+  // Return Psi2S pdg code
+  return 100443;
+}
+
+Double_t GeneratorParamEMlibV2::PtPsi2S( const Double_t *px, const Double_t */*dummy*/ )
+{
+  const double &pt=px[0];
+  return fPtParametrization[kPsi2S]->Eval(pt);
+}
+
+Double_t GeneratorParamEMlibV2::YPsi2S( const Double_t *py, const Double_t */*dummy*/ )
+{
+  return YFlat(*py);
+}
+
+Double_t GeneratorParamEMlibV2::V2Psi2S( const Double_t *px, const Double_t */*dummy*/ )
+{
+  //If there are parameterizations read from file, use them  
+  if(fV2Parametrization[kPsi2S])
+    return fV2Parametrization[kPsi2S]->Eval(EtScalingV2(px[0], kPsi2S,fV2RefParameterization[kPsi2S])) ;
+  
+  //else use build-in parameterizations
+    return KEtScal(*px,kPsi2S);
+}
+
+
+
+//--------------------------------------------------------------------------
+//
+//                              Upsilon
+//
+//--------------------------------------------------------------------------
+Int_t GeneratorParamEMlibV2::IpUpsilon(TRandom *)
+{
+  // Return Upsilon pdg code
+  return 553;
+}
+
+Double_t GeneratorParamEMlibV2::PtUpsilon( const Double_t *px, const Double_t */*dummy*/ )
+{
+  const double &pt=px[0];
+  return fPtParametrization[kUpsilon]->Eval(pt);
+}
+
+Double_t GeneratorParamEMlibV2::YUpsilon( const Double_t *py, const Double_t */*dummy*/ )
+{
+  return YFlat(*py);
+}
+
+Double_t GeneratorParamEMlibV2::V2Upsilon( const Double_t *px, const Double_t */*dummy*/ )
+{
+  //If there are parameterizations read from file, use them  
+  if(fV2Parametrization[kUpsilon])
+    return fV2Parametrization[kUpsilon]->Eval(EtScalingV2(px[0], kUpsilon,fV2RefParameterization[kUpsilon])) ;
+  
+  //else use build-in parameterizations
+    return KEtScal(*px,kUpsilon);
 }
 
 
@@ -1352,7 +1418,7 @@ Bool_t GeneratorParamEMlibV2::SetPtParametrizations(TString fileName, TString di
     TRandom* rndm=NULL;
 
     // get parametrizations from file
-    for (Int_t i=1; i<26; i++) {
+    for (Int_t i=1; i<kNHadrons; i++) {
       Int_t ip = (Int_t)(lib.GetIp(i, ""))(rndm);
       printf("GeneratorParamEMlibV2: Get %d parametrization.\n",ip);
       fPtParametrizationTemp = (TF1*)fParametrizationDir->Get(Form("%d_pt", ip));
@@ -1364,7 +1430,7 @@ Bool_t GeneratorParamEMlibV2::SetPtParametrizations(TString fileName, TString di
         }
         fPtParametrization[i]->SetName(Form("%d_pt", ip));
       } else {
-        if (i==7 || i==9 || i==10 || i==11 || i==12 || i==17 || (i>=20 && i<=25))
+        if (i==kSigma0 || i==kDeltaPlPl || i==kDeltaPl || i==kDeltaZero || i==kDeltaMi || i==kLambda || i==kOmegaPl || i==kOmegaMi || i==kXiPl || i==kXiMi || i==kSigmaPl || i==kSigmaMi)
           fPtParametrization[i] = (TF1*)MtScal(i, Form("%d_pt_mtScaled", ip), 0);
         else
           fPtParametrization[i] = (TF1*)MtScal(i, Form("%d_pt_mtScaled", ip), 1);
@@ -1416,7 +1482,7 @@ Bool_t GeneratorParamEMlibV2::SetPtParametrizations(TString fileName, TString di
     TRandom* rndm=NULL;
 
     // get parametrizations from file
-    for (Int_t i=1; i<26; i++) {
+    for (Int_t i=1; i<kNHadrons; i++) {
       Int_t ip = (Int_t)(lib.GetIp(i, ""))(rndm);
       printf("GeneratorParamEMlibV2: Get %d parametrization.\n",ip);
       name = Form("%d_pt", ip);
@@ -1424,7 +1490,7 @@ Bool_t GeneratorParamEMlibV2::SetPtParametrizations(TString fileName, TString di
         formula = dir[name];
         fPtParametrization[i] = new TF1(TString(name),TString(formula),0,300);
       } else {
-        if (i==7 || i==9 || i==10 || i==11 || i==12 || i==17 || (i>=20 && i<=25))
+        if (i==kSigma0 || i==kDeltaPlPl || i==kDeltaPl || i==kDeltaZero || i==kDeltaMi || i==kLambda || i==kOmegaPl || i==kOmegaMi || i==kXiPl || i==kXiMi || i==kSigmaPl || i==kSigmaMi)
           fPtParametrization[i] = (TF1*)MtScal(i, Form("%d_pt_mtScaled", ip), 0);
         else
           fPtParametrization[i] = (TF1*)MtScal(i, Form("%d_pt_mtScaled", ip), 1);
@@ -1566,9 +1632,9 @@ Bool_t GeneratorParamEMlibV2::SetFlowParametrizations(TString fileName, TString 
 //
 //--------------------------------------------------------------------------
 TF1* GeneratorParamEMlibV2::GetPtParametrization(Int_t np) {
-  if (np<26)
+  if (np<kNHadrons)
     return fPtParametrization[np];
-  else if (np==26)
+  else if (np==kNHadrons)
     return fPtParametrizationProton;
   else
     return NULL;
@@ -1607,34 +1673,36 @@ void GeneratorParamEMlibV2::SetMtScalingFactors(TString fileName, TString dirNam
 
 
   // set bin labels
-  fMtFactorHisto = new TH1D("histoMtScaleFactor", "", 26, 0.5, 26.5);
+  fMtFactorHisto = new TH1D("histoMtScaleFactor", "", kNHadrons, 0.5, kNHadrons+0.5);
   fMtFactorHisto->GetYaxis()->SetTitle("mt scaling factor");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(1,"111");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(2,"221");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(3,"113");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(4,"223");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(5,"331");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(6,"333");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(7,"443");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(8,"3212");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(9,"310");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(10,"2224");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(11,"2214");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(12,"1114");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(13,"2114");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(14,"213");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(15,"-213");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(16,"313");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(17,"130");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(18,"3122");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(19,"321");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(20,"-321");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(21,"-3334");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(22,"3334");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(23,"-3312");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(24,"3312");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(25,"3224");
-  fMtFactorHisto->GetXaxis()->SetBinLabel(26,"3114");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kPizero+1,"111");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kEta+1,"221");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kRho0+1,"113");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kOmega+1,"223");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kEtaprime+1,"331");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kPhi+1,"333");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kJpsi+1,"443");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kPsi2S+1,"100443");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kUpsilon+1,"553");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kSigma0+1,"3212");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kK0s+1,"310");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kDeltaPlPl+1,"2224");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kDeltaPl+1,"2214");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kDeltaMi+1,"1114");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kDeltaZero+1,"2114");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kRhoPl+1,"213");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kRhoMi+1,"-213");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kK0star+1,"313");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kK0l+1,"130");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kLambda+1,"3122");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kKPl+1,"321");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kKMi+1,"-321");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kOmegaPl+1,"-3334");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kOmegaMi+1,"3334");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kXiPl+1,"-3312");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kXiMi+1,"3312");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kSigmaPl+1,"3224");
+  fMtFactorHisto->GetXaxis()->SetBinLabel(kSigmaMi+1,"3114");
   fMtFactorHisto->SetDirectory(0);
 
   if (fileName.EndsWith(".root")){ //read the old ROOT files
@@ -1648,7 +1716,7 @@ void GeneratorParamEMlibV2::SetMtScalingFactors(TString fileName, TString dirNam
     if (fMtFactorHistoTemp) {
       GeneratorParamEMlibV2 lib;
       TRandom* rndm=NULL;
-      for (Int_t i=0; i<26; i++) {
+      for (Int_t i=0; i<kNHadrons; i++) {
         Int_t ip = (Int_t)(lib.GetIp(i, ""))(rndm);
         Double_t factor = 0.;
         for (Int_t j=1; j<fMtFactorHistoTemp->GetNbinsX()+1; j++) {
@@ -1671,7 +1739,7 @@ void GeneratorParamEMlibV2::SetMtScalingFactors(TString fileName, TString dirNam
     delete fMtFactorFile;
   }
   else{ // read the JSON file
-    for (Int_t i=0; i<26; i++) {
+    for (Int_t i=0; i<kNHadrons; i++) {
       fMtFactorHisto->SetBinContent(i+1, fgkMtFactor[selectedCol][i]); //first set all factors to hard coded value
     }
 
@@ -1683,7 +1751,7 @@ void GeneratorParamEMlibV2::SetMtScalingFactors(TString fileName, TString dirNam
         if (dir.contains("histoMtScaleFactor")){
           GeneratorParamEMlibV2 lib;
           TRandom* rndm=NULL;
-          for (Int_t i=0; i<26; i++) {
+          for (Int_t i=0; i<kNHadrons; i++) {
             Int_t ip = (Int_t)(lib.GetIp(i, ""))(rndm);
             Double_t factor = -999.;
             nlohmann::json hist = dir["histoMtScaleFactor"];
@@ -1737,7 +1805,7 @@ Bool_t GeneratorParamEMlibV2::SetPtYDistributions(TString fileName, TString dirN
     GeneratorParamEMlibV2 lib;
     TRandom* rndm=NULL;
     TH2F* ptYTemp = NULL;
-    for (Int_t i=0; i<26; i++) {
+    for (Int_t i=0; i<kNHadrons; i++) {
       Int_t ip = (Int_t)(lib.GetIp(i, ""))(rndm);
       ptYTemp = (TH2F*)fPtYDistributionDir->Get(Form("%d_pt_y", ip));
       if (ptYTemp) {
@@ -1771,7 +1839,7 @@ Bool_t GeneratorParamEMlibV2::SetPtYDistributions(TString fileName, TString dirN
     // check for pt-y parametrizations
     GeneratorParamEMlibV2 lib;
     TRandom* rndm=NULL;
-    for (Int_t i=0; i<26; i++) {
+    for (Int_t i=0; i<kNHadrons; i++) {
       Int_t ip = (Int_t)(lib.GetIp(i, ""))(rndm);
       std::string name = Form("%d_pt_y", ip);
       if (dir.contains(name)) {
@@ -1805,7 +1873,7 @@ Bool_t GeneratorParamEMlibV2::SetPtYDistributions(TString fileName, TString dirN
 //
 //--------------------------------------------------------------------------
 TH2F* GeneratorParamEMlibV2::GetPtYDistribution(Int_t np) {
-  if (np<26 && fPtYDistribution[np])
+  if (np<kNHadrons && fPtYDistribution[np])
     return fPtYDistribution[np];
   else
     return NULL;
@@ -1853,6 +1921,12 @@ GenFunc GeneratorParamEMlibV2::GetPt(Int_t param, const char * tname) const
       break;
     case kJpsi:
       func=PtJpsi;
+      break;
+    case kPsi2S:
+      func=PtPsi2S;
+      break;
+    case kUpsilon:
+      func=PtUpsilon;
       break;
     case kSigma0:
       func=PtSigma0;
@@ -1952,6 +2026,12 @@ GenFunc GeneratorParamEMlibV2::GetY(Int_t param, const char * tname) const
     case kJpsi:
       func=YJpsi;
       break;
+    case kPsi2S:
+      func=YPsi2S;
+      break;
+    case kUpsilon:
+      func=YUpsilon;
+      break;
     case kSigma0:
       func=YSigma0;
       break;
@@ -2050,6 +2130,12 @@ GenFuncIp GeneratorParamEMlibV2::GetIp(Int_t param, const char * tname) const
     case kJpsi:
       func=IpJpsi;
       break;
+    case kPsi2S:
+      func=IpPsi2S;
+      break;
+    case kUpsilon:
+      func=IpUpsilon;
+      break;
     case kSigma0:
       func=IpSigma0;
       break;
@@ -2147,6 +2233,12 @@ GenFunc GeneratorParamEMlibV2::GetV2(Int_t param, const char * tname) const
       break;
     case kJpsi:
       func=V2Jpsi;
+      break;
+    case kPsi2S:
+      func=V2Psi2S;
+      break;
+    case kUpsilon:
+      func=V2Upsilon;
       break;
     case kSigma0:
       func=V2Sigma0;

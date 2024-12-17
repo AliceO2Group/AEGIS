@@ -63,6 +63,8 @@ class ExodusDecayer : public TVirtualMCDecayer
     virtual TH1F*   ElectronPairMassHistoPhiDalitz()     {return  fEPMassPhiDalitz;}
     virtual TH1F*   ElectronPairMassHistoPhiDalitz_toPi0()     {return  fEPMassPhiDalitz_toPi0;}
     virtual TH1F*   ElectronPairMassHistoJPsi()          {return  fEPMassJPsi;}
+    virtual TH1F*   ElectronPairMassHistoPsi2S()          {return  fEPMassPsi2S;}
+    virtual TH1F*   ElectronPairMassHistoUpsilon()          {return  fEPMassUpsilon;}
 
     virtual const   TLorentzVector* Products_pion()         const {return fProducts_pion;}
     virtual const   TLorentzVector* Products_eta()          const {return fProducts_eta;}
@@ -76,6 +78,8 @@ class ExodusDecayer : public TVirtualMCDecayer
     virtual const   TLorentzVector* Products_phi_dalitz()   const {return fProducts_phi_dalitz;}
     virtual const   TLorentzVector* Products_phi_dalitz_toPi0()   const {return fProducts_phi_dalitz_toPi0;}
     virtual const   TLorentzVector* Products_jpsi()         const {return fProducts_jpsi;}
+    virtual const   TLorentzVector* Products_psi2s()         const {return fProducts_psi2s;}
+    virtual const   TLorentzVector* Products_upsilon()         const {return fProducts_upsilon;}
 
  protected:
     // Histograms for electron pair mass
@@ -91,6 +95,8 @@ class ExodusDecayer : public TVirtualMCDecayer
     TH1F*         fEPMassPhiDalitz;
     TH1F*         fEPMassPhiDalitz_toPi0;
     TH1F*         fEPMassJPsi;
+    TH1F*         fEPMassPsi2S;
+    TH1F*         fEPMassUpsilon;
 
     TF1* fPol;
 
@@ -107,6 +113,8 @@ class ExodusDecayer : public TVirtualMCDecayer
     TLorentzVector  fProducts_phi_dalitz[3];
     TLorentzVector  fProducts_phi_dalitz_toPi0[3];
     TLorentzVector  fProducts_jpsi[2];
+    TLorentzVector  fProducts_psi2s[2];
+    TLorentzVector  fProducts_upsilon[2];
 
 
     Bool_t fInit;
