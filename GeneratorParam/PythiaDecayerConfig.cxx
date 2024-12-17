@@ -394,6 +394,8 @@ void PythiaDecayerConfig::ForceDecay() {
     ForceParticleDecay(331, 11, 2); // etaprime
     ForceParticleDecay(333, 11, 2); // phi
     ForceParticleDecay(443, 11, 2); // jpsi
+    ForceParticleDecay(100443, 11, 2); // psi(2S)
+    ForceParticleDecay(553, 11, 2); // upsilon
     break;
   case kGammaEM:
     ForceParticleDecay(111, 22, 1);  // pi^0
@@ -987,6 +989,14 @@ void PythiaDecayerConfig::Decay(Int_t idpart, TLorentzVector* p) {
       fPythia->Py1ent(0, idpart, energy, theta, phi);
       JPsiDirect();
     }  
+    else if(idpart == 100443){
+      fPythia->Py1ent(0, idpart, energy, theta, phi);
+      Psi2SDirect();
+    }
+    else if(idpart == 553){
+      fPythia->Py1ent(0, idpart, energy, theta, phi);
+      UpsilonDirect();
+    }
   }
   fPythia->SetMSTU(10,2);
   fPythia->GetPrimaries();
@@ -1228,6 +1238,56 @@ void PythiaDecayerConfig::JPsiDirect(){
     for (Int_t j = 0; j < 2; j++) {
       for (Int_t k = 0; k < 4; k++) {
         TLorentzVector vec = (fDecayerExodus->Products_jpsi())[1-j];
+        fPythia->SetP(fd+j+1,k+1,vec[k]);
+      }
+    }
+  }
+}
+
+void PythiaDecayerConfig::Psi2SDirect(){
+  Int_t nt = fPythia->GetN();
+  for (Int_t i = 0; i < nt; i++) {
+    if (fPythia->GetK(i+1,2) != 100443) continue;
+    Int_t fd = fPythia->GetK(i+1,4) - 1;
+    Int_t ld = fPythia->GetK(i+1,5) - 1;
+    if (fd < 0) continue;
+    if ((ld - fd) != 1) continue;
+    if (fDecayToDimuon == 0) {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 11)) continue;
+    } else {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 13)) continue;
+    }
+    TLorentzVector psi2s(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
+    Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
+    fDecayerExodus->Decay(pdg, &psi2s);
+    for (Int_t j = 0; j < 2; j++) {
+      for (Int_t k = 0; k < 4; k++) {
+        TLorentzVector vec = (fDecayerExodus->Products_psi2s())[1-j];
+        fPythia->SetP(fd+j+1,k+1,vec[k]);
+      }
+    }
+  }
+}
+
+void PythiaDecayerConfig::UpsilonDirect(){
+  Int_t nt = fPythia->GetN();
+  for (Int_t i = 0; i < nt; i++) {
+    if (fPythia->GetK(i+1,2) != 553) continue;
+    Int_t fd = fPythia->GetK(i+1,4) - 1;
+    Int_t ld = fPythia->GetK(i+1,5) - 1;
+    if (fd < 0) continue;
+    if ((ld - fd) != 1) continue;
+    if (fDecayToDimuon == 0) {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 11)) continue;
+    } else {
+      if ((TMath::Abs(fPythia->GetK(fd+1,2)) != 13)) continue;
+    }
+    TLorentzVector upsilon(fPythia->GetP(i+1,1), fPythia->GetP(i+1,2), fPythia->GetP(i+1,3), fPythia->GetP(i+1,4));
+    Int_t pdg = TMath::Abs(fPythia->GetK(i+1,2));
+    fDecayerExodus->Decay(pdg, &upsilon);
+    for (Int_t j = 0; j < 2; j++) {
+      for (Int_t k = 0; k < 4; k++) {
+        TLorentzVector vec = (fDecayerExodus->Products_upsilon())[1-j];
         fPythia->SetP(fd+j+1,k+1,vec[k]);
       }
     }
