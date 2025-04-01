@@ -10,6 +10,7 @@ add_subdirectory(TEPEMGEN)
 
 add_subdirectory(GeneratorCosmics)
 
+find_package(nlohmann_json REQUIRED)
 add_subdirectory(GeneratorParam)
 
 add_subdirectory(GeneratorSlowNucleons)
