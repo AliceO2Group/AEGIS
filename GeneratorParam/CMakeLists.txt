@@ -29,7 +29,7 @@ ROOT_GENERATE_DICTIONARY(G__GeneratorParam ${HEADERS} LINKDEF GeneratorParamLink
 
 #---Create a shared library with geneated dictionary
 add_library(GeneratorParam SHARED GeneratorParam.cxx GeneratorParamLibBase.cxx GeneratorParamMUONlib.cxx GeneratorParamEMlib.cxx GeneratorParamEMlibV2.cxx PythiaDecayerConfig.cxx ExodusDecayer.cxx TPythia6.cxx TPythia6Decayer.cxx TMCParticle.cxx G__GeneratorParam.cxx)
-target_link_libraries(GeneratorParam ${ROOT_LIBRARIES} ${VMC_LIBRARIES} ${PYTHIA6_LIBRARY})
+target_link_libraries(GeneratorParam ${ROOT_LIBRARIES} ${VMC_LIBRARIES} ${PYTHIA6_LIBRARY} nlohmann_json::nlohmann_json)
 
 
 set_target_properties(GeneratorParam
