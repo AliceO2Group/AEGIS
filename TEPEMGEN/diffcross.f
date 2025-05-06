@@ -32,21 +32,21 @@ C
 C call this routine first to initialize some parameter needed in the
 C function. 
 C
-C gm = Gamma_cm, that is, gm of each ion (~100 for RHIC ~3000 for LHC)
+C energy = energy per nucleon pair in GeV
 C mass = mass of the produced particle in MeV (~0.511 for e,~100 for mu)
 C======================================================================
 
-      SUBROUTINE Initdiffcross (gm,mass)
+      SUBROUTINE Initdiffcross (energy,mass)
       IMPLICIT NONE
-      DOUBLE PRECISION gm,mass
+      DOUBLE PRECISION energy,mass
 
       DOUBLE PRECISION gamma,beta,m,w1xw1,w1xw2,w2xw2,wl,wy
       COMMON/PHYSPARAM/gamma,beta,m,w1xw1,w1xw2,w2xw2,wl,wy
 
       DOUBLE PRECISION ARCOSH,x
       ARCOSH(x)=LOG(x+SQRT((x-1D0)*(x+1D0)))
-
-      gamma=gm
+C Approximation energy per nucleon divided by proton mass
+      gamma=energy/(2D0*0.938D0)
       beta=sqrt((1D0-1D0/gamma)*(1D0+1D0/gamma))
       m=mass
       

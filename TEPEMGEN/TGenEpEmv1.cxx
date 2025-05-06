@@ -117,7 +117,7 @@ bool TGenEpEmv1::Init()
   
   fMass = TDatabasePDG::Instance()->GetParticle(11)->Mass();
   if (fPtMin == 0) fPtMin = 1.E-04; // avoid zero pT
-  Initialize(fYMin, fYMax, fPtMin, fPtMax);
+  Initialize(fYMin, fYMax, fPtMin, fPtMax, fCMEnergy, fZ);
   fEvent = 0;
   //
   // calculate XSection

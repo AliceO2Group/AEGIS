@@ -29,6 +29,8 @@ class TGenEpEmv1 : public TEpEmGen {
   void SetYRange(Double_t min, Double_t max) {fYMin = min; fYMax = max;};
   void SetPtRange(Double_t min, Double_t max) {fPtMin = min; fPtMax = max;};
   void SetPhiRange(Double_t min, Double_t max) {fPhiMin = min; fPhiMax = max;};
+  void SetCMEnergy(Double_t energy) {fCMEnergy = energy;};
+  void SetZ(Double_t z) {fZ = z;};
   void SetOrigin(Float_t ox, Float_t oy, Float_t oz) {fOrigin[0]=ox; fOrigin[1]=oy; fOrigin[2]=oz;};
   void SetSigma(Float_t sx, Float_t sy, Float_t sz) {fOsigma[0]=sx; fOsigma[1]=sy; fOsigma[2]=sz;};
   void SetTimeOrigin(Float_t timeorig) {fTimeOrigin = timeorig;};
@@ -52,6 +54,8 @@ class TGenEpEmv1 : public TEpEmGen {
   Double_t fYMin, fYMax;
   Double_t fPhiMin, fPhiMax;
   Double_t fPtMin, fPtMax;
+  Double_t fCMEnergy; // center of mass energy per nucleon pair in GeV
+  Double_t fZ;        // atomic number of the projectile/target (only symmetric systems are compatible for now)
   Double_t fTimeOrigin, fOrigin[3], fOsigma[3];
 
   Double_t   fXSection;     // estimated cross section in barns
