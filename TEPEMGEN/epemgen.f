@@ -1,7 +1,7 @@
 C **********************************************************************
 C                                                  Version 2.0
 C     Generator of e+e- pairs produced in            1.10.2002
-C                  PbPb collisions at LHC             
+C                  Heavy-ion collisions at LHC
 C                                            
 C     Copyright (c) 2002
 C     Authors:          Kai Hencken	     <k.hencken@unibas.ch>
@@ -22,7 +22,7 @@ C     Long write up:   K.Hencken,Yu.Kharlov,S.Sadovsky
 C                      Internal ALICE Note 2002-27 
 C                      
 C **********************************************************************
-      subroutine ee_init(Ymin,Ymax,PTmin,PTmax)
+      subroutine ee_init(Ymin,Ymax,PTmin,PTmax,cm_energy,Z)
 C-----------------------------------------------------------------------
 C    Generator initialisation
 C
@@ -30,6 +30,8 @@ C    Input variables:  Ymin      - minimal value of rapidity  \
 C                      Ymax      - maximal value of rapidity   | of kinematics 
 C                      PTmin     - Pt minimum in MeV/c	       | range
 C                      PTmax     - Pt maximum in MeV/c        /
+C                      cm_energy - Centre of mass energy per nucleon pair
+C                      Z         - Atomic number of the colliding nuclei
 C-----------------------------------------------------------------------
       implicit real*8 (A-H,O-Z)
       external DsdYpY,DsdYmY,DsdXpX,DsdXmX,DsdPhi,DsdXX,DsdYY
@@ -55,9 +57,8 @@ C
 C  Exact differential Cross section:
 C - - - - - - - - - - - - - - - - - - -
 C
-      gm = 2750.0d0             ! Pb gamma factor at the LHC
       mass = 0.5109991d0        ! electron mass 
-      call initdiffcross (gm,mass)
+      call initdiffcross (cm_energy,mass)
 C     
 C  Cross sections:
 C - - - - - - - - - -         
@@ -95,7 +96,7 @@ C - - - - - - - - - -
       write(*,*) '            Ysec1,Ysec2,XsecY=', Ysec1,Ysec2,XsecY
 C-    write(*,*) '                  XsecX*YsecY=', XYsect
 C
-      XYsect = 2371.5239*(82./137.035)**4*XYsect ! Normalization factor 
+      XYsect = 2371.5239*(Z/137.035)**4*XYsect ! Normalization factor
       write(*,*) ' Normalized:      XsecX*YsecY=', XYsect
       write(*,*) 
 C      

@@ -50,7 +50,7 @@
 #endif
 
 extern "C" {
-  void ee_init  (Double_t &ymin, Double_t &ymax, Double_t &xmin, Double_t &xmax);
+  void ee_init  (Double_t &ymin, Double_t &ymax, Double_t &xmin, Double_t &xmax, Double_t &cm_energy, Double_t &Z);
   void ee_event (Double_t &ymin, Double_t &ymax, Double_t &xmin, Double_t &xmax,
 	         Double_t &yE,   Double_t &yP,   Double_t &xE,   Double_t &xP, 
 		 Double_t &phi,  Double_t &w);
@@ -94,12 +94,12 @@ void TEpEmGen::GenerateEvent(Double_t ymin, Double_t ymax, Double_t ptmin, Doubl
 }
 
 //______________________________________________________________________________
-void TEpEmGen::Initialize(Double_t ymin, Double_t ymax, Double_t ptmin, Double_t ptmax)
+void TEpEmGen::Initialize(Double_t ymin, Double_t ymax, Double_t ptmin, Double_t ptmax, Double_t cm_energy, Double_t Z)
 {
   // Initialize EpEmGen
   Double_t ptminMeV = ptmin*1000;
   Double_t ptmaxMeV = ptmax*1000;
-  ee_init(ymin,ymax,ptminMeV,ptmaxMeV);
+  ee_init(ymin,ymax,ptminMeV,ptmaxMeV,cm_energy,Z);
 }
 
 //______________________________________________________________________________

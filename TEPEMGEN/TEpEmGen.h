@@ -27,7 +27,7 @@ class TEpEmGen : public TGenerator {
   TEpEmGen();
   virtual ~TEpEmGen();
   
-  void Initialize    (Double_t ymin, Double_t ymax, Double_t ptmin, Double_t ptmax);
+  void Initialize(Double_t ymin, Double_t ymax, Double_t ptmin, Double_t ptmaxm, Double_t cm_energy = 5160., Double_t Z = 82.);
   virtual void GenerateEvent() {TGenerator::GenerateEvent();};
   Int_t ImportParticles(TClonesArray *particles, Option_t *option);
 
