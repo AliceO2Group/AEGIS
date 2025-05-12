@@ -54,8 +54,8 @@ class TGenEpEmv1 : public TEpEmGen {
   Double_t fYMin, fYMax;
   Double_t fPhiMin, fPhiMax;
   Double_t fPtMin, fPtMax;
-  Double_t fCMEnergy; // center of mass energy per nucleon pair in GeV
-  Double_t fZ;        // atomic number of the projectile/target (only symmetric systems are compatible for now)
+  Double_t fCMEnergy = 5160.; // center of mass energy per nucleon pair in GeV
+  Double_t fZ = 82.;          // atomic number of the projectile/target (only symmetric systems are compatible for now)
   Double_t fTimeOrigin, fOrigin[3], fOsigma[3];
 
   Double_t   fXSection;     // estimated cross section in barns
