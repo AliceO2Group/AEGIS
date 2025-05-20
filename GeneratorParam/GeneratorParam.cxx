@@ -193,7 +193,7 @@ void GeneratorParam::GenerateEvent() {
   //
   // Generate one event
   //
-  fParticles->Clear();
+  fParticles->Delete(); // clearing previous event AND deleting the particles inside since owning
  
   Float_t polar[3] = {
       0, 0, 0}; // Polarisation of the parent particle (for GEANT tracking)
@@ -420,12 +420,11 @@ void GeneratorParam::GenerateEvent() {
           //
           // Parent
           // --- For Exodus --------------------------------//
-    auto particle = new TParticle(
-          pdg, ((decayed) ? 11 : 1), -1, -1, -1, -1, p[0], p[1], p[2],
-          energy, origin0[0], origin0[1], origin0[2], time0
-          );
-    particle->SetWeight(wgtp);
-    fParticles->Add(particle);
+          auto particle = new TParticle(
+            pdg, ((decayed) ? 11 : 1), -1, -1, -1, -1, p[0], p[1], p[2],
+            energy, origin0[0], origin0[1], origin0[2], time0);
+          particle->SetWeight(wgtp);
+          fParticles->Add(particle);
           vParent[0] = nt;
           nt++;
           fNprimaries++;
@@ -460,14 +459,14 @@ void GeneratorParam::GenerateEvent() {
                 iparent = -1;
               }
               auto parentP = (TParticle *)fParticles->At(iparent);
-              if (parentP->GetFirstDaughter() == -1)
+              if (parentP->GetFirstDaughter() == -1) {
                 parentP->SetFirstDaughter(nt);
+              }
               parentP->SetLastDaughter(nt);
-        auto particle = new TParticle(kf, ksc, iparent, -1, -1, -1, pc[0],
+              auto particle = new TParticle(kf, ksc, iparent, -1, -1, -1, pc[0],
                                             pc[1], pc[2], ec, och0[0], och0[1],
-                                            och0[2], time0 + iparticle->T()
-              );
-        particle->SetWeight(weight * wgtch);
+                                            och0[2], time0 + iparticle->T());
+              particle->SetWeight(weight * wgtch);
               fParticles->Add(particle);
 
               vParent[i] = nt;
@@ -484,10 +483,10 @@ void GeneratorParam::GenerateEvent() {
       } else {
         // nodecay option, so parent will be tracked by GEANT (pions, kaons,
         // eta, omegas, baryons)
-  auto particle = new TParticle(pdg, 1, -1, -1, -1, -1, p[0], p[1], p[2],
+        auto particle = new TParticle(pdg, 1, -1, -1, -1, -1, p[0], p[1], p[2],
                                       energy, origin0[0], origin0[1],
                                       origin0[2], time0);
-  particle->SetWeight(wgtp);
+        particle->SetWeight(wgtp);
         fParticles->Add(particle);
         ipa++;
         fNprimaries++;
