@@ -18,7 +18,6 @@ class GeneratorSpectators : public TGenerator {
 
 public:
   GeneratorSpectators();
-  GeneratorSpectators(Int_t npart); // FIXME: not used at the moment
 
   virtual ~GeneratorSpectators() {};
 
@@ -28,8 +27,10 @@ public:
 
   // Parameters that could be set for generation
   void SetDebug() { fDebug = kTRUE; }
+  void SetNpart(Int_t npart = 1) { fNpart = npart; }
   void SetParticle(Int_t pdgcode = 2112) { fPDGcode = pdgcode; }
   void SetMomentum(Float_t ptot = 2510.) { fPmax = ptot; }
+  void SetSampleMomentum(Int_t sample = 0) { fSamplePmax = sample; }
   void SetDirection(Float_t eta = 0, Float_t cosx = 0, Float_t cosy = 0,
                     Float_t cosz = 1) {
     fPseudoRapidity = eta;
@@ -50,9 +51,15 @@ public:
   Float_t GetZDirection() const { return fCosz; }
 
 protected:
-  Int_t    fDebug;              // Debugging flag
+  Int_t fDebug;                 // Debugging flag
+  Int_t fNpart;                 // Number of particles to be generated
+                                // if =-1 sample from realistic distribution
   Int_t    fPDGcode;            // Particle to be generated - can be n (2112) or p (2212)
   Float_t  fPmax;               // Maximum slow nucleon momentum
+  Int_t fSamplePmax;            // Sample momentum from realistic distribution
+                                // if =2 sample from uniform distribution
+                                // if =1 sample from realistic distribution
+                                // if =0 use fPmax as a fixed value
   Float_t  fPseudoRapidity;     // Pseudorapidity: =0->track director cosines, !=0->pc.eta
   Float_t  fCosx;               // Director cos of the track - x direction
   Float_t  fCosy;               // Director cos of the track - y direction
@@ -69,6 +76,10 @@ protected:
  private:
   GeneratorSpectators(const GeneratorSpectators &gen);
   GeneratorSpectators & operator=(const GeneratorSpectators &gen);
+
+  // Sampling of number of particles and momentum
+  Int_t SampleNpart();
+  Double_t SampleMomentum();
 
   // Fermi smearing, beam divergence and crossing angle
   void FermiTwoGaussian(Float_t A);
