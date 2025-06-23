@@ -24,24 +24,14 @@
 #include "GeneratorSpectators.h"
 
 GeneratorSpectators::GeneratorSpectators()
-    : TGenerator("GeneratorSpectators", "GeneratorSpectators"), fDebug(0),
-      fPDGcode(0), fPmax(0), fPseudoRapidity(0), fCosx(0), fCosy(0), fCosz(0),
-      fFermiflag(1), fBeamDiv(0), fBeamCrossAngle(0), fBeamCrossPlane(0) {
-  //
-  // Default constructor
-  //
-}
-
-GeneratorSpectators::GeneratorSpectators(Int_t npart)
     : TGenerator("GeneratorSpectators", "GeneratorSpectators") {
-  //
-  // Standard constructor
-  //
   fName = "GeneratorSpectators";
-  fTitle = "Generation of Test Particles for ZDCs";
+  fTitle = "Generation of spectator nucleons for ZDCs";
   fDebug = 0;
+  SetNpart();
   SetParticle();
   SetMomentum();
+  SetSampleMomentum();
   SetDirection();
   SetFermi();
   SetDivergence();
@@ -57,7 +47,10 @@ GeneratorSpectators::GeneratorSpectators(Int_t npart)
 void GeneratorSpectators::Init() {
   // Initialize Fermi momentum distributions for Pb-Pb
   printf("\n **** GeneratorSpectators initialization:\n");
+  printf("   Number of particles to be generated: %d\n", fNpart);
   printf("   ParticlePDG: %d, Track: cosx = %f cosy = %f cosz = %f \n", fPDGcode, fCosx, fCosy, fCosz);
+  printf("   Maximum momentum: %f MeV/c, Sampling option: %d\n", fPmax,
+         fSamplePmax);
   printf("   Fermi flag: %d, Beam divergence: %f, Crossing angle: %f, plane: %d\n\n",
              fFermiflag, fBeamDiv, fBeamCrossAngle, fBeamCrossPlane);
 
@@ -65,78 +58,84 @@ void GeneratorSpectators::Init() {
 }
 
 void GeneratorSpectators::GenerateEvent() {
-  // Generate one trigger particle (n or p)
+
   fParticles->Clear();
+  Int_t nPart = fNpart > 0 ? fNpart : SampleNpart();
 
-  Double_t pLab[3] = {0.,0.,0.};
-  Double_t fP[3] = {0., 0., 0.};
-  Double_t fBoostP[3] = {0., 0., 0.};
-  Double_t ptot = fPmax;
+  for (int i = 0; i < nPart; i++) {
+    // Generate one trigger particle (n or p)
+    Double_t pLab[3] = {0., 0., 0.};
+    Double_t fP[3] = {0., 0., 0.};
+    Double_t fBoostP[3] = {0., 0., 0.};
+    Double_t ptot = SampleMomentum();
 
-  if (fPseudoRapidity == 0.) {
-    pLab[0] = ptot*fCosx;
-    pLab[1] = ptot*fCosy;
-    pLab[2] = ptot*fCosz;
-  } else {
-    Float_t scang = 2*TMath::ATan(TMath::Exp(-(fPseudoRapidity)));
-    pLab[0] = -ptot*TMath::Sin(scang);
-    pLab[1] = 0.;
-    pLab[2] = ptot*TMath::Cos(scang);
-  }
-
-  for (int i = 0; i < 3; i++)
-    fP[i] = pLab[i];
-
-  if (fDebug == 1) {
-    printf("\n Particle momentum before divergence and crossing: ");
-    printf(" 	pLab = (%f, %f, %f)\n", pLab[0], pLab[1], pLab[2]);
-  }
-
-  // Beam divergence and crossing angle
-  if(TMath::Abs(fBeamCrossAngle)>0.) {
-    BeamCrossing(pLab);
-    for (int i = 0; i < 3; i++)
-      fP[i] = pLab[i];
-  }
-  if(TMath::Abs(fBeamDiv)>0.) {
-    BeamDivergence(pLab);
-    for (int i = 0; i < 3; i++)
-      fP[i] = pLab[i];
-  }
-
-  Double_t mass = TDatabasePDG::Instance()->GetParticle(fPDGcode)->Mass();
-  Double_t ddp[3] = {0., 0., 0.};
-  Double_t dddp[3] = {0., 0., 0.};
-  Double_t fP0 = 0.;
-  Double_t dddp0 = 0.;
-
-  // If required apply the Fermi momentum
-  if(fFermiflag==1){
-    if (fPDGcode == kProton || fPDGcode == kNeutron)
-      ExtractFermi(fPDGcode, ddp);
-    fP0 = TMath::Sqrt(fP[0]*fP[0] + fP[1]*fP[1] + fP[2]*fP[2] + mass*mass);
-    for (int i = 0; i < 3; i++)
-      dddp[i] = ddp[i];
-    dddp0 = TMath::Sqrt(dddp[0]*dddp[0] + dddp[1]*dddp[1] + dddp[2]*dddp[2] + mass*mass);
-
-    TVector3 b(fP[0]/fP0, fP[1]/fP0, fP[2]/fP0);
-    TLorentzVector pFermi(dddp[0], dddp[1], dddp[2], dddp0);
-    pFermi.Boost(b);
-
-    for(int i=0; i<3; i++){
-       fBoostP[i] = pFermi[i];
-       fP[i] = pFermi[i];
+    if (fPseudoRapidity == 0.) {
+      pLab[0] = ptot * fCosx;
+      pLab[1] = ptot * fCosy;
+      pLab[2] = ptot * fCosz;
+    } else {
+      Float_t scang = 2 * TMath::ATan(TMath::Exp(-(fPseudoRapidity)));
+      pLab[0] = -ptot * TMath::Sin(scang);
+      pLab[1] = 0.;
+      pLab[2] = ptot * TMath::Cos(scang);
     }
+
+    for (int i = 0; i < 3; i++)
+      fP[i] = pLab[i];
+
+    if (fDebug == 1) {
+      printf("\n Particle momentum before divergence and crossing: ");
+      printf(" 	pLab = (%f, %f, %f)\n", pLab[0], pLab[1], pLab[2]);
+    }
+
+    // Beam divergence and crossing angle
+    if (TMath::Abs(fBeamCrossAngle) > 0.) {
+      BeamCrossing(pLab);
+      for (int i = 0; i < 3; i++)
+        fP[i] = pLab[i];
+    }
+    if (TMath::Abs(fBeamDiv) > 0.) {
+      BeamDivergence(pLab);
+      for (int i = 0; i < 3; i++)
+        fP[i] = pLab[i];
+    }
+
+    Double_t mass = TDatabasePDG::Instance()->GetParticle(fPDGcode)->Mass();
+    Double_t ddp[3] = {0., 0., 0.};
+    Double_t dddp[3] = {0., 0., 0.};
+    Double_t fP0 = 0.;
+    Double_t dddp0 = 0.;
+
+    // If required apply the Fermi momentum
+    if (fFermiflag == 1) {
+      if (fPDGcode == kProton || fPDGcode == kNeutron)
+        ExtractFermi(fPDGcode, ddp);
+      fP0 = TMath::Sqrt(fP[0] * fP[0] + fP[1] * fP[1] + fP[2] * fP[2] +
+                        mass * mass);
+      for (int i = 0; i < 3; i++)
+        dddp[i] = ddp[i];
+      dddp0 = TMath::Sqrt(dddp[0] * dddp[0] + dddp[1] * dddp[1] +
+                          dddp[2] * dddp[2] + mass * mass);
+
+      TVector3 b(fP[0] / fP0, fP[1] / fP0, fP[2] / fP0);
+      TLorentzVector pFermi(dddp[0], dddp[1], dddp[2], dddp0);
+      pFermi.Boost(b);
+
+      for (int i = 0; i < 3; i++) {
+        fBoostP[i] = pFermi[i];
+        fP[i] = pFermi[i];
+      }
+    }
+
+    if (fDebug == 1)
+      printf(" ### Particle momentum = (%f, %f, %f)\n", fP[0], fP[1], fP[2]);
+
+    Double_t energy = TMath::Sqrt(fP[0] * fP[0] + fP[1] * fP[1] +
+                                  fP[2] * fP[2] + mass * mass);
+    auto part = new TParticle(fPDGcode, 1, -1, -1, -1, -1, fP[0], fP[1], fP[2],
+                              energy, 0., 0., 0., 0.);
+    fParticles->Add(part);
   }
-
-  if (fDebug == 1)
-    printf(" ### Particle momentum = (%f, %f, %f)\n", fP[0], fP[1], fP[2]);
-
-  Double_t energy =
-      TMath::Sqrt(fP[0] * fP[0] + fP[1] * fP[1] + fP[2] * fP[2] + mass * mass);
-  auto part = new TParticle(fPDGcode, 1, -1, -1, -1, -1, fP[0], fP[1], fP[2],
-                            energy, 0., 0., 0., 0.);
-  fParticles->Add(part);
 }
 
 int GeneratorSpectators::ImportParticles(TClonesArray *particles, Option_t *option) {
@@ -151,6 +150,37 @@ int GeneratorSpectators::ImportParticles(TClonesArray *particles, Option_t *opti
   }
 
   return numpart;
+}
+
+Int_t GeneratorSpectators::SampleNpart() {
+  // Sample number of particles to be generated
+  Int_t npart = gRandom->Poisson(4.); // FIXME: add a realistic distribution
+
+  if (fDebug == 1)
+    printf(" Number of particles to be generated: %d\n", npart);
+
+  return npart;
+}
+
+Double_t GeneratorSpectators::SampleMomentum() {
+  // Sample momentum of the spectator nucleon
+  // FIXME: check if this is meaningful
+
+  Double_t ptot = fPmax;
+
+  if (fSamplePmax == 1) {
+    // Sample from realistic distribution
+    ptot = gRandom->Gaus(fPmax,
+                         fPmax * 0.05); // FIXME: add a realistic distribution
+  } else if (fSamplePmax == 2) {
+    // Sample from uniform distribution
+    ptot = gRandom->Uniform(fPmax / 2., fPmax);
+  }
+
+  if (fDebug == 1)
+    printf(" Sampled momentum: %f MeV/c\n", ptot);
+
+  return ptot;
 }
 
 void GeneratorSpectators::FermiTwoGaussian(Float_t A) {
@@ -266,7 +296,6 @@ void GeneratorSpectators::BeamDivergence(Double_t *pLab)
   }
 }
 
-//_____________________________________________________________________________
 void GeneratorSpectators::AddAngle(Double_t theta1, Double_t phi1,
                                    Double_t theta2, Double_t phi2,
                                    Double_t *angleSum) {
