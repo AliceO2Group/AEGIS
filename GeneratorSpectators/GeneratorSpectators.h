@@ -26,14 +26,6 @@ public:
   virtual void GenerateEvent();
   virtual int ImportParticles(TClonesArray *particles, Option_t *option);
 
-  // Fermi smearing, beam divergence and crossing angle
-  void FermiTwoGaussian(Float_t A);
-  void ExtractFermi(Int_t id, Double_t *ddp);
-  void BeamDivergence(Double_t *pLab);
-  void BeamCrossing(Double_t *pLab);
-  void AddAngle(Double_t theta1, Double_t phi1, Double_t theta2, Double_t phi2,
-                Double_t *angle);
-
   // Parameters that could be set for generation
   void SetDebug() { fDebug = kTRUE; }
   void SetParticle(Int_t pdgcode = 2112) { fPDGcode = pdgcode; }
@@ -45,7 +37,7 @@ public:
     fCosy = cosy;
     fCosz = cosz;
   }
-  void SetFermi(Int_t Fflag = 1) { fFermiflag = Fflag; }
+  void SetFermi(Int_t flag = 1) { fFermiflag = flag; }
   void SetDivergence(Float_t bmdiv = 0.000032) { fBeamDiv = bmdiv; }
   void SetCrossing(Float_t xingangle = 0.0001, Int_t xingplane = 2) {
     fBeamCrossAngle = xingangle;
@@ -58,7 +50,7 @@ public:
   Float_t GetZDirection() const { return fCosz; }
 
 protected:
-  Int_t    fDebug;              // debugging Fflag
+  Int_t    fDebug;              // Debugging flag
   Int_t    fPDGcode;            // Particle to be generated - can be n (2112) or p (2212)
   Float_t  fPmax;               // Maximum slow nucleon momentum
   Float_t  fPseudoRapidity;     // Pseudorapidity: =0->track director cosines, !=0->pc.eta
@@ -77,6 +69,14 @@ protected:
  private:
   GeneratorSpectators(const GeneratorSpectators &gen);
   GeneratorSpectators & operator=(const GeneratorSpectators &gen);
+
+  // Fermi smearing, beam divergence and crossing angle
+  void FermiTwoGaussian(Float_t A);
+  void ExtractFermi(Int_t id, Double_t *ddp);
+  void BeamDivergence(Double_t *pLab);
+  void BeamCrossing(Double_t *pLab);
+  void AddAngle(Double_t theta1, Double_t phi1, Double_t theta2, Double_t phi2,
+                Double_t *angle);
 
   ClassDef(GeneratorSpectators, 2) // Generator for spectators
 };
