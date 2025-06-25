@@ -27,11 +27,12 @@ GeneratorSpectators::GeneratorSpectators()
     : TGenerator("GeneratorSpectators", "GeneratorSpectators") {
   fName = "GeneratorSpectators";
   fTitle = "Generation of spectator nucleons for ZDCs";
-  fDebug = 0;
+  fDebug = kFALSE;
+  SetImpactParameter();
+  fNpartFluctuation = kFALSE;
   SetNpart();
   SetParticle();
   SetMomentum();
-  SetSampleMomentum();
   SetDirection();
   SetFermi();
   SetDivergence();
@@ -42,32 +43,40 @@ GeneratorSpectators::GeneratorSpectators()
      fProbintn[i] = 0;
      fPp[i] = 0;
   }
+
+  InitParameterizations();
 }
 
 void GeneratorSpectators::Init() {
-  // Initialize Fermi momentum distributions for Pb-Pb
   printf("\n **** GeneratorSpectators initialization:\n");
-  printf("   Number of particles to be generated: %d\n", fNpart);
-  printf("   ParticlePDG: %d, Track: cosx = %f cosy = %f cosz = %f \n", fPDGcode, fCosx, fCosy, fCosz);
-  printf("   Maximum momentum: %f MeV/c, Sampling option: %d\n", fPmax,
-         fSamplePmax);
+  printf("   Impact parameter: %f fm\n", fImpactParameter);
+  printf("   Number of particles to be generated (overwrites estimation from impact parameter): %d\n", fNpart);
+  printf("   Particle PDG: %d, Track: cosx = %f cosy = %f cosz = %f \n", fPDGcode, fCosx, fCosy, fCosz);
+  printf("   Maximum momentum: %f MeV/c", fPtot);
   printf("   Fermi flag: %d, Beam divergence: %f, Crossing angle: %f, plane: %d\n\n",
              fFermiflag, fBeamDiv, fBeamCrossAngle, fBeamCrossPlane);
-
+  // Initialize Fermi momentum distributions for Pb-Pb
   FermiTwoGaussian(208.);
 }
 
 void GeneratorSpectators::GenerateEvent() {
 
   fParticles->Clear();
-  Int_t nPart = fNpart > 0 ? fNpart : SampleNpart();
+
+  Int_t nPart = 0;
+  if (fNpart > 0) {
+    nPart = fNpart;
+  } else {
+    Float_t b = fImpactParameter > 0 ? fImpactParameter : SampleImpPar();
+    nPart = SampleNpart(b);
+  }
 
   for (int i = 0; i < nPart; i++) {
     // Generate one trigger particle (n or p)
     Double_t pLab[3] = {0., 0., 0.};
     Double_t fP[3] = {0., 0., 0.};
     Double_t fBoostP[3] = {0., 0., 0.};
-    Double_t ptot = SampleMomentum();
+    Double_t ptot = fPtot;
 
     if (fPseudoRapidity == 0.) {
       pLab[0] = ptot * fCosx;
@@ -83,7 +92,7 @@ void GeneratorSpectators::GenerateEvent() {
     for (int i = 0; i < 3; i++)
       fP[i] = pLab[i];
 
-    if (fDebug == 1) {
+    if (fDebug) {
       printf("\n Particle momentum before divergence and crossing: ");
       printf(" 	pLab = (%f, %f, %f)\n", pLab[0], pLab[1], pLab[2]);
     }
@@ -107,7 +116,7 @@ void GeneratorSpectators::GenerateEvent() {
     Double_t dddp0 = 0.;
 
     // If required apply the Fermi momentum
-    if (fFermiflag == 1) {
+    if (fFermiflag) {
       if (fPDGcode == kProton || fPDGcode == kNeutron)
         ExtractFermi(fPDGcode, ddp);
       fP0 = TMath::Sqrt(fP[0] * fP[0] + fP[1] * fP[1] + fP[2] * fP[2] +
@@ -127,7 +136,7 @@ void GeneratorSpectators::GenerateEvent() {
       }
     }
 
-    if (fDebug == 1)
+    if (fDebug)
       printf(" ### Particle momentum = (%f, %f, %f)\n", fP[0], fP[1], fP[2]);
 
     Double_t energy = TMath::Sqrt(fP[0] * fP[0] + fP[1] * fP[1] +
@@ -152,35 +161,29 @@ int GeneratorSpectators::ImportParticles(TClonesArray *particles, Option_t *opti
   return numpart;
 }
 
-Int_t GeneratorSpectators::SampleNpart() {
-  // Sample number of particles to be generated
-  Int_t npart = gRandom->Poisson(4.); // FIXME: add a realistic distribution
+Float_t GeneratorSpectators::SampleImpPar() {
+  // Sample impact parameter of the collision
+  Float_t b = fImpParDistr.GetRandom();
 
-  if (fDebug == 1)
-    printf(" Number of particles to be generated: %d\n", npart);
+  if (fDebug)
+    printf(" Impact parameter sampled: %f fm\n", b);
 
-  return npart;
+  return b;
 }
 
-Double_t GeneratorSpectators::SampleMomentum() {
-  // Sample momentum of the spectator nucleon
-  // FIXME: check if this is meaningful
+Int_t GeneratorSpectators::SampleNpart(Float_t impactParameter) {
+  // Sample number of particles to be generated
+  Double_t npart = fNeutronsVsImpPar.Eval(impactParameter);
 
-  Double_t ptot = fPmax;
-
-  if (fSamplePmax == 1) {
-    // Sample from realistic distribution
-    ptot = gRandom->Gaus(fPmax,
-                         fPmax * 0.05); // FIXME: add a realistic distribution
-  } else if (fSamplePmax == 2) {
-    // Sample from uniform distribution
-    ptot = gRandom->Uniform(fPmax / 2., fPmax);
+  if (fNpartFluctuation) {
+    Double_t width = fWidthNeutVsImpPar.Eval(impactParameter);
+    npart = gRandom->Gaus(npart, width);
   }
 
-  if (fDebug == 1)
-    printf(" Sampled momentum: %f MeV/c\n", ptot);
+  if (fDebug)
+    printf(" Number of particles to be generated: %d\n", npart);
 
-  return ptot;
+  return (Int_t)npart;
 }
 
 void GeneratorSpectators::FermiTwoGaussian(Float_t A) {
@@ -206,7 +209,7 @@ void GeneratorSpectators::FermiTwoGaussian(Float_t A) {
     fProbintp[i] = fProbintp[i - 1] + probp;
     fProbintn[i] = fProbintp[i];
   }
-  if (fDebug == 1)
+  if (fDebug)
     printf("		Initialization of Fermi momenta distribution \n");
 }
 
@@ -236,7 +239,7 @@ void GeneratorSpectators::ExtractFermi(Int_t id, Double_t *ddp) {
   ddp[1] = pext*TMath::Sin(tet)*TMath::Sin(phi);
   ddp[2] = pext*cost;
 
-  if (fDebug == 1)
+  if (fDebug)
     printf(" Fermi momentum: p = (%f, %f, %f )\n\n", ddp[0], ddp[1], ddp[2]);
 }
 
@@ -247,7 +250,7 @@ void GeneratorSpectators::BeamCrossing(Double_t *pLab)
   pLab[2] = pLab[2] * TMath::Cos(fBeamCrossAngle) -
             pLab[1] * TMath::Sin(fBeamCrossAngle);
 
-  if (fDebug == 1) {
+  if (fDebug) {
     printf(" Beam crossing angle = %f mrad -> ", fBeamCrossAngle * 1000.);
     printf("  p = (%f, %f, %f)\n", pLab[0], pLab[1], pLab[2]);
   }
@@ -290,7 +293,7 @@ void GeneratorSpectators::BeamDivergence(Double_t *pLab)
   pLab[1] = pmod*TMath::Sin(tetsum)*TMath::Sin(fisum);
   pLab[2] = pmod*TMath::Cos(tetsum);
 
-  if (fDebug == 1) {
+  if (fDebug) {
     printf(" Beam divergence = %f mrad -> ", fBeamDiv * 1000.);
     printf("  p = (%f, %f, %f)\n", pLab[0], pLab[1], pLab[2]);
   }
@@ -334,4 +337,36 @@ void GeneratorSpectators::AddAngle(Double_t theta1, Double_t phi1,
     fisum = 360. - fisum;
   angleSum[0] = tetsum;
   angleSum[1] = fisum;
+}
+
+void GeneratorSpectators::InitParameterizations() {
+  // Initialize parameterizations of impact parameter and number of neutrons
+  // Values extracted from Pb-Pb at 5.02 TeV
+  fNeutronsVsImpPar = TF1("fNeutronsVsImpPar", "pol4", 1.e-3, 16.5);
+  fNeutronsVsImpPar.SetParameters(8.983788695117516, -0.6857007484704702,
+                                  1.324880721983338, -0.10840009950942395,
+                                  0.0017928889806371545);
+
+  fWidthNeutVsImpPar = TF1("fWidhtNeutVsImpPar", "pol4", 1.e-3, 16.5);
+  fWidthNeutVsImpPar.SetParameters(0.7578900431240667, -0.2807294197940713,
+                                   0.052533762422634384, -0.0045671177313716714,
+                                   0.00015101727942287197);
+
+  fImpParDistr = TF1("fImpParDistr", ImpParFunc, 1.e-3, 16.5, 8);
+  fImpParDistr.SetParameters(-5.98059, 5.70526e+02, -1.97974e+06, 3.49047e+05,
+                             -1.08417e+04, -1.23786e+03, 9.28519e+01, -1.75601);
+}
+
+Double_t GeneratorSpectators::ImpParFunc(Double_t *x, Double_t *par) {
+  // Function for parameterization of impact parameter distribution
+  // from fit to Pb-Pb at 5.02 TeV
+  if (x[0] < 1.e-3 or x[0] > 16.5)
+    return 0.0;
+
+  if (x[0] < 13.8)
+    return par[0] + par[1] * x[0];
+
+  return par[2] + par[3] * x[0] + par[4] * TMath::Power(x[0], 2) +
+         par[5] * TMath::Power(x[0], 3) + par[6] * TMath::Power(x[0], 4) +
+         par[7] * TMath::Power(x[0], 5);
 }
