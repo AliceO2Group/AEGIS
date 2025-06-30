@@ -181,7 +181,7 @@ Int_t GeneratorSpectators::SampleNpart(Float_t impactParameter) {
   }
 
   if (fDebug)
-    printf(" Number of particles to be generated: %d\n", npart);
+    printf(" Number of particles to be generated: %d\n", (Int_t)npart);
 
   return (Int_t)npart;
 }
@@ -240,7 +240,7 @@ void GeneratorSpectators::ExtractFermi(Int_t id, Double_t *ddp) {
   ddp[2] = pext*cost;
 
   if (fDebug)
-    printf(" Fermi momentum: p = (%f, %f, %f )\n\n", ddp[0], ddp[1], ddp[2]);
+    printf(" Fermi momentum: p = (%f, %f, %f )\n", ddp[0], ddp[1], ddp[2]);
 }
 
 void GeneratorSpectators::BeamCrossing(Double_t *pLab)
