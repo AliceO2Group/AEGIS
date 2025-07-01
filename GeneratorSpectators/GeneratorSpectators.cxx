@@ -75,7 +75,6 @@ void GeneratorSpectators::GenerateEvent() {
     // Generate one trigger particle (n or p)
     Double_t pLab[3] = {0., 0., 0.};
     Double_t fP[3] = {0., 0., 0.};
-    Double_t fBoostP[3] = {0., 0., 0.};
     Double_t ptot = fPtot;
 
     if (fPseudoRapidity == 0.) {
@@ -130,10 +129,8 @@ void GeneratorSpectators::GenerateEvent() {
       TLorentzVector pFermi(dddp[0], dddp[1], dddp[2], dddp0);
       pFermi.Boost(b);
 
-      for (int i = 0; i < 3; i++) {
-        fBoostP[i] = pFermi[i];
+      for (int i = 0; i < 3; i++)
         fP[i] = pFermi[i];
-      }
     }
 
     if (fDebug)
@@ -181,9 +178,9 @@ Int_t GeneratorSpectators::SampleNpart(Float_t impactParameter) {
   }
 
   if (fDebug)
-    printf(" Number of particles to be generated: %d\n", (Int_t)npart);
+    printf(" Number of particles to be generated: %d\n", TMath::Nint(npart));
 
-  return (Int_t)npart;
+  return TMath::Nint(npart);
 }
 
 void GeneratorSpectators::FermiTwoGaussian(Float_t A) {
