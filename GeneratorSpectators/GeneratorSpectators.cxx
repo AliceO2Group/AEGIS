@@ -360,7 +360,7 @@ void GeneratorSpectators::InitParameterizations() {
 Double_t GeneratorSpectators::ImpParFunc(Double_t *x, Double_t *par) {
   // Function for parameterization of impact parameter distribution
   // from fit to Pb-Pb at 5.02 TeV
-  if (x[0] < 1.e-3 or x[0] > 16.5)
+  if (x[0] < 5.e-2 or x[0] > 16.5)
     return 0.0;
 
   if (x[0] < 13.8)
