@@ -43,7 +43,6 @@ FairGenerator *GeneratorSingleNeutron() {
   spec->SetMomentum(5360. / 2.);
   spec->SetDirection(0, 0., 0., 1.);
   spec->SetDivergence(0.000032);  // beam divergence in murad
-  spec->SetCrossing(0.000070, 2); // beam crossing angle in murad
   return wrap;
 }
 
@@ -56,7 +55,6 @@ FairGenerator *GeneratorNeutrons(int nNeutrons = -1, float b = -1., bool useFluc
   spec->SetMomentum(5360. / 2.);
   spec->SetDirection(0, 0., 0., 1.);
   spec->SetDivergence(0.000032);  // beam divergence in murad
-  spec->SetCrossing(0.000070, 2); // beam crossing angle in murad
   return wrap;
 }
 

@@ -32,7 +32,7 @@ public:
   void SetNpartFluctuation(Bool_t flag = kTRUE) { fNpartFluctuation = flag; }
   void SetNpart(Int_t npart = -1) { fNpart = npart; }
   void SetParticle(Int_t pdgcode = 2112) { fPDGcode = pdgcode; }
-  void SetMomentum(Float_t ptot = 2510.) { fPtot = ptot; }
+  void SetMomentum(Float_t ptot = 2680.) { fPtot = ptot; }
   void SetDirection(Float_t eta = 0, Float_t cosx = 0, Float_t cosy = 0,
                     Float_t cosz = 1) {
     fPseudoRapidity = eta;
@@ -41,8 +41,8 @@ public:
     fCosz = cosz;
   }
   void SetFermi(Bool_t flag = kTRUE) { fFermiflag = flag; }
-  void SetDivergence(Float_t bmdiv = 0.000032) { fBeamDiv = bmdiv; }
-  void SetCrossing(Float_t xingangle = 0.0001, Int_t xingplane = 2) {
+  void SetDivergence(Float_t bmdiv = 0.) { fBeamDiv = bmdiv; }
+  void SetCrossing(Float_t xingangle = 0., Int_t xingplane = 2) {
     fBeamCrossAngle = xingangle;
     fBeamCrossPlane = xingplane;
   }
