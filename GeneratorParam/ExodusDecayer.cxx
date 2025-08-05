@@ -683,7 +683,7 @@ void ExodusDecayer::Decay(Int_t idpart, TLorentzVector* pparent)
 //-----------------------------------------------------------------------------//
 //   Generate 2-body resonance decays: Rho/Omega/Phi/JPsi/Psi2S/Upsilon        //
 //-----------------------------------------------------------------------------//
-  if(((idpart==idEta&&fDecayToDimuon==1)||idpart==idRho||idpart==idOmega||idpart==idPhi||idpart==idJPsi||idpart==idPsi2S||idpart==idUpsilon)&&(idpartner==0)){
+  if(((idpart==idEta)||idpart==idRho||idpart==idOmega||idpart==idPhi||idpart==idJPsi||idpart==idPsi2S||idpart==idUpsilon)&&(idpartner==0)){
 
    //get the parent mass
    mp_res = pparent->M();
@@ -696,7 +696,7 @@ void ExodusDecayer::Decay(Int_t idpart, TLorentzVector* pparent)
    }
    // Sample the electron pair mass from a histogram and set Polarization
    for( ;; ) {
-        if(idpart==idEta&&fDecayToDimuon==1){
+        if(idpart==idEta){
          epmass_res = fEPMassEta->GetRandom();
          PolPar=0.;
         }else if(idpart==idRho){
@@ -775,7 +775,7 @@ void ExodusDecayer::Decay(Int_t idpart, TLorentzVector* pparent)
    fProducts_res[0].Boost(boostLab_res_corr);
    fProducts_res[1].Boost(boostLab_res_corr);
 
-   if(idpart==idEta&&fDecayToDimuon==1) {
+   if(idpart==idEta) {
     fProducts_eta[0]=fProducts_res[0];
     fProducts_eta[1]=fProducts_res[1];
    }else if(idpart==idRho) {
