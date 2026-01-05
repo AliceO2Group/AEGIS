@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(GeneratorSpectators)
 
 # You need to tell CMake where to find the ROOT installation. This can be done in a number of ways:
